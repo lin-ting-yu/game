@@ -105,6 +105,68 @@
           }
         }
       }
+    },
+    "minesweeper": {
+      "projectType": "library",
+      "root": "projects/minesweeper",
+      "sourceRoot": "projects/minesweeper/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/minesweeper/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/minesweeper/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/minesweeper/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/minesweeper/src/test.ts",
+            "tsConfig": "projects/minesweeper/tsconfig.spec.json",
+            "karmaConfig": "projects/minesweeper/karma.conf.js"
+          }
+        }
+      }
+    },
+    "service": {
+      "projectType": "library",
+      "root": "projects/service",
+      "sourceRoot": "projects/service/src",
+      "prefix": "lib",
+      "architect": {
+        "build": {
+          "builder": "@angular-devkit/build-angular:ng-packagr",
+          "options": {
+            "project": "projects/service/ng-package.json"
+          },
+          "configurations": {
+            "production": {
+              "tsConfig": "projects/service/tsconfig.lib.prod.json"
+            },
+            "development": {
+              "tsConfig": "projects/service/tsconfig.lib.json"
+            }
+          },
+          "defaultConfiguration": "production"
+        },
+        "test": {
+          "builder": "@angular-devkit/build-angular:karma",
+          "options": {
+            "main": "projects/service/src/test.ts",
+            "tsConfig": "projects/service/tsconfig.spec.json",
+            "karmaConfig": "projects/service/karma.conf.js"
+          }
+        }
+      }
     }
   },
   "defaultProject": "game"

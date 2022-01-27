@@ -18,6 +18,10 @@
     "@angular/platform-browser": "~13.1.0",
     "@angular/platform-browser-dynamic": "~13.1.0",
     "@angular/router": "~13.1.0",
+    "angular-svg-icon": "^13.0.0",
+    "createjs-module": "^0.8.3",
+    "day": "^0.0.2",
+    "dayjs": "^1.10.7",
     "rxjs": "~7.4.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"
@@ -34,6 +38,7 @@
     "karma-coverage": "~2.1.0",
     "karma-jasmine": "~4.0.0",
     "karma-jasmine-html-reporter": "~1.7.0",
+    "ng-packagr": "^13.0.0",
     "typescript": "~4.5.2"
   }
 }

@@ -1,0 +1,168 @@
+@import "./../../../../scss/export.scss";
+
+$border-size: 1px;
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  position: absolute;
+  left: 0;
+  top: 0;
+  &.moving {
+    transition: 0.5s;
+    transition-timing-function: cubic-bezier(0.49, 0.06, 0.09, 0.99);
+  }
+  &.collapse {
+    pointer-events: none;
+  }
+}
+.header {
+  display: flex;
+  align-items: center;
+  height: grid(6);
+  border-radius: grid(2.5) grid(2.5) 0 0;
+  background-color: $color-0;
+  cursor: move;
+
+  &:after {
+    content: "";
+    order: 2;
+    flex: 1;
+  }
+  .select,
+  .select-icon,
+  .icon {
+    height: grid(6);
+    padding: grid(1.5);
+  }
+  .select {
+    order: 1;
+    display: flex;
+    align-items: center;
+    max-width: 200px;
+    color: $color-white;
+    padding-left: grid(3);
+    padding-right: 0;
+    border-top-left-radius: grid(3);
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+    &:hover {
+      background-color: $color-1;
+    }
+    &:active {
+      background-color: $color-black;
+    }
+    .select-text {
+      font-size: grid(3);
+      white-space: normal;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .select-icon {
+      flex-shrink: 0;
+      padding-left: grid(0.5);
+    }
+    select {
+      opacity: 0;
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      cursor: pointer;
+    }
+  }
+  .select-icon,
+  .icon {
+    order: 3;
+    width: grid(6);
+    font-size: 0;
+    cursor: pointer;
+    svg {
+      width: 100%;
+      height: 100%;
+      fill: $color-white;
+    }
+  }
+  .icon {
+    &:last-child {
+      width: grid(8);
+      padding-right: grid(3);
+      border-top-right-radius: grid(3);
+    }
+    &:hover {
+      background-color: $color-1;
+    }
+    &:active {
+      background-color: $color-black;
+    }
+  }
+}
+.body {
+  flex: 1;
+  height: 0;
+  border: solid ($border-size * 2) $color-0;
+  border-top: none;
+  background-color: $color-5;
+  border-radius: 0 0 grid(2.5) grid(2.5);
+}
+
+.size-control {
+  width: 6px;
+  height: 6px;
+  background-color: #f24;
+  position: absolute;
+  opacity: 0;
+  &.top-right,
+  &.bottom-right,
+  &.bottom-left,
+  &.top-left {
+    width: 10px;
+    height: 10px;
+  }
+  &.top {
+    width: calc(100% - 4px);
+    top: -2px;
+    left: 2px;
+    cursor: ns-resize;
+  }
+  &.top-right {
+    top: -4px;
+    right: -4px;
+    cursor: nesw-resize;
+  }
+  &.right {
+    height: calc(100% - 4px);
+    top: 2px;
+    right: -2px;
+    cursor: ew-resize;
+  }
+  &.bottom-right {
+    bottom: -4px;
+    right: -4px;
+    cursor: nwse-resize;
+  }
+  &.bottom {
+    width: calc(100% - 4px);
+    left: 2px;
+    bottom: -2px;
+    cursor: ns-resize;
+  }
+  &.bottom-left {
+    left: -4px;
+    bottom: -4px;
+    cursor: nesw-resize;
+  }
+  &.left {
+    height: calc(100% - 4px);
+    left: -2px;
+    top: 2px;
+    cursor: ew-resize;
+  }
+  &.top-left {
+    left: -4px;
+    top: -4px;
+    cursor: nwse-resize;
+  }
+}

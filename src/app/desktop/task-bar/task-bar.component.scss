@@ -1,0 +1,62 @@
+@import "./../../../../scss/export.scss";
+
+:host {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: grid(10);
+  border-top: solid 2px $color-black;
+  background-color: $color-6;
+  padding: 0 grid(4) 0 0;
+  position: relative;
+  z-index: 99999;
+}
+.logo,
+.item-container,
+.info-container {
+  height: 100%;
+}
+
+.logo {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  padding: 0 grid(5);
+  cursor: pointer;
+  &:hover {
+    background-color: $color-4;
+  }
+  svg {
+    width: 55px;
+  }
+}
+
+.item-container {
+  flex: 1;
+  display: flex;
+}
+
+.info-container {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  text-align: right;
+  transform-origin: center right;
+  font-size: 12px;
+  transform: scale(0.8);
+  line-height: 1.5;
+  .time {
+    span {
+      animation: time 2s infinite steps(2, end);
+    }
+  }
+}
+
+@keyframes time {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}

@@ -1,0 +1,246 @@
+<div class="minesweeper-header">
+  <div *ngIf="isShowSelect" class="minesweeper-select">
+    <div class="minesweeper-select-text">{{ innerLevel }}</div>
+    <div class="minesweeper-select-icon">
+      <ng-container *ngTemplateOutlet="arrow"></ng-container>
+    </div>
+    <select [(ngModel)]="innerLevel">
+      <ng-container *ngFor="let data of options">
+        <option [value]="data.value">{{ data.text }}</option>
+      </ng-container>
+    </select>
+  </div>
+
+  <div *ngIf="isShowCollapse" class="minesweeper-icon">
+    <ng-container *ngTemplateOutlet="collapse"></ng-container>
+  </div>
+  <div *ngIf="isShowClose" class="minesweeper-icon" (click)="onCloseClick.emit()">
+    <ng-container *ngTemplateOutlet="close"></ng-container>
+  </div>
+</div>
+<div class="minesweeper-body" [ngClass]="{
+    'minesweeper-is-done': isDone || isDead
+  }" (contextmenu)="false">
+  <div class="minesweeper-dash">
+    <div class="minesweeper-number" [attr.data-content]="landmineNum"></div>
+    <div class="minesweeper-face" (click)="init()">
+      <ng-container *ngTemplateOutlet="fase"></ng-container>
+    </div>
+    <div class="minesweeper-number" [attr.data-content]="time"></div>
+  </div>
+  <div class="minesweeper-lands">
+    <div *ngFor="let _y of minesweeperData.height; let yIndex = index;" class="minesweeper-row">
+      <ng-container *ngFor="let _x of minesweeperData.width; let xIndex = index;">
+        <ng-container *ngTemplateOutlet="
+          land;
+          context: {
+            land: getLand(xIndex, yIndex),
+            index: xyToI(xIndex, yIndex),
+            x: xIndex,
+            y: yIndex
+          }
+        "></ng-container>
+
+      </ng-container>
+    </div>
+  </div>
+</div>
+
+
+<ng-template #land let-land="land" let-x="x" let-y="y" let-index="index">
+  <div class="minesweeper-col" [attr.data-content]="
+      (land && land.isOpen && !land.isLandmine)
+        ? (
+          land && land.isOpen
+            ? (land.nearLandmineLength ? land.nearLandmineLength : '')
+            : ''
+        )
+        : ''
+    " [ngClass]="{
+      'minesweeper-is-open': land.isOpen,
+      'minesweeper-is-landmine': land.isOpen && land.isLandmine,
+      'minesweeper-is-flag': land.isFlag,
+      'minesweeper-is-down': checkDown(x, y)
+    }" (mousedown)="mousedown(x, y, $event)" (mouseup)="mouseup(x, y, $event)" (mouseenter)="mouseenter(x, y)"
+    (click)="itemClick(x, y, $event)" (contextmenu)="false">
+    <ng-container *ngIf="land.isFlag">
+      <ng-container *ngTemplateOutlet="flag"></ng-container>
+    </ng-container>
+    <ng-container *ngIf="!land.isFlag && land.isOpen && land.isLandmine">
+      <ng-container *ngTemplateOutlet="landmine"></ng-container>
+    </ng-container>
+  </div>
+</ng-template>
+
+<ng-template #arrow>
+  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+    width="100px" height="100px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100;" xml:space="preserve">
+    <polygon points="20,29.995 20,49.985 39.99,49.985 39.99,70.005 60.01,70.005 60.01,49.985 80,49.985 80,29.995 	" />
+  </svg>
+</ng-template>
+
+<ng-template #collapse>
+  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+    width="100px" height="100px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100;" xml:space="preserve">
+    <rect y="40.005" width="100" height="19.99" />
+  </svg>
+</ng-template>
+
+<ng-template #close>
+  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+    width="100px" height="100px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100;" xml:space="preserve">
+    <rect x="80" y="80" width="20" height="20" />
+    <rect x="80" width="20" height="20" />
+    <rect x="60.01" y="60.01" width="19.99" height="19.99" />
+    <rect x="60.01" y="20" width="19.99" height="19.99" />
+    <rect x="39.99" y="39.99" width="20.02" height="20.02" />
+    <rect x="20" y="60.01" width="19.99" height="19.99" />
+    <rect x="20" y="20" width="19.99" height="19.99" />
+    <rect y="80" width="20" height="20" />
+    <rect width="20" height="20" />
+  </svg>
+</ng-template>
+
+<ng-template #flag>
+  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+    width="100px" height="100px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100;" xml:space="preserve">
+    <polygon class="flag-bg" points="73.34,26.66 60.01,19.99 36.188,15.799 36.188,44.182 60.01,39.99 73.34,33.32 75.813,30.188 	" />
+    <rect class="flag-border" x="73.34" y="26.66" width="13.33" height="6.66" />
+    <rect class="flag-border" x="60.01" y="33.32" width="13.33" height="6.67" />
+    <rect class="flag-border" x="60.01" y="19.99" width="13.33" height="6.67" />
+    <polygon class="flag-border" points="66.68,86.67 66.68,93.33 13.33,93.33 13.33,86.67 20,86.67 20,80 26.66,80 26.66,6.67 39.99,6.67
+  39.99,13.33 60.01,13.33 60.01,19.99 39.99,19.99 39.99,39.99 60.01,39.99 60.01,46.65 39.99,46.65 39.99,80 60.02,80 60.02,86.67
+    " />
+
+  </svg>
+</ng-template>
+
+<ng-template #landmine>
+  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+    width="100px" height="100px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100;" xml:space="preserve">
+
+    <polygon class="landmine-bg" points="80.01,43.249 73.34,36.589 66.68,23.259 60.01,19.224 39.99,19.224 33.33,23.259 26.66,36.589
+		20,43.249 15.125,49.938 15.125,69.938 20,76.599 26.66,83.269 33.33,89.929 39.99,94.099 60.01,94.099 66.68,89.929 73.34,83.269
+		80.01,76.599 83.125,69.938 83.125,49.938 	" />
+
+    <rect class="landmine-border" x="80.01" y="43.249" width="6.66" height="33.35" />
+    <rect class="landmine-border" x="73.34" y="76.599" width="6.67" height="6.67" />
+    <rect class="landmine-border" x="73.34" y="36.589" width="6.67" height="6.66" />
+    <rect class="landmine-border" x="66.68" y="83.269" width="6.66" height="6.66" />
+    <rect class="landmine-border" x="66.68" y="23.259" width="6.66" height="13.33" />
+    <rect class="landmine-border" x="53.35" y="3.269" width="13.33" height="6.66" />
+    <rect class="landmine-border" x="33.33" y="89.929" width="33.35" height="6.67" />
+    <polygon class="landmine-border" points="66.68,23.259 66.68,16.589 53.35,16.589 53.35,9.929 46.66,9.929 46.66,16.589 33.33,16.589
+			33.33,23.259 		" />
+    <rect class="landmine-border" x="33.33" y="69.938" width="6.66" height="6.66" />
+    <rect class="landmine-border" x="33.33" y="43.249" width="6.66" height="6.69" />
+    <polygon class="landmine-border" points="60.01,36.589 60.01,29.918 33.33,29.918 33.33,23.259 26.66,23.259 26.66,36.589 		" />
+    <rect class="landmine-border" x="26.66" y="83.269" width="6.67" height="6.66" />
+    <rect class="landmine-border" x="26.66" y="49.938" width="6.67" height="20" />
+    <rect class="landmine-border" x="20" y="76.599" width="6.66" height="6.67" />
+    <rect class="landmine-border" x="20" y="36.589" width="6.66" height="6.66" />
+    <rect class="landmine-border" x="13.33" y="43.249" width="6.67" height="33.35" />
+
+  </svg>
+</ng-template>
+
+
+
+<ng-template #fase>
+  <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+    width="100px" height="100px" viewBox="0 0 100 100" style="enable-background:new 0 0 100 100;" xml:space="preserve">
+    <!-- U -->
+    <ng-container *ngIf="!isDone && !isDead && !isLeftDown">
+      <rect x="63.64" y="57.826" width="9.091" height="9.11" />
+      <rect x="36.35" y="66.937" width="27.29" height="9.08" />
+      <rect x="27.271" y="57.826" width="9.079" height="9.11" />
+      <rect x="63.64" y="30.556" width="9.091" height="18.19" />
+      <rect x="27.271" y="30.556" width="9.079" height="18.19" />
+      <rect x="81.811" y="72.73" width="9.1" height="9.079" />
+      <rect x="90.91" y="27.27" width="9.09" height="45.46" />
+      <rect x="81.811" y="18.19" width="9.1" height="9.08" />
+      <rect x="72.73" y="81.81" width="9.08" height="9.11" />
+      <rect x="72.73" y="9.08" width="9.08" height="9.11" />
+      <rect x="27.271" y="90.92" width="45.46" height="9.08" />
+      <rect x="27.271" width="45.46" height="9.08" />
+      <rect x="18.19" y="81.81" width="9.08" height="9.11" />
+      <rect x="18.19" y="9.08" width="9.08" height="9.11" />
+      <rect x="9.08" y="72.73" width="9.11" height="9.079" />
+      <rect x="9.08" y="18.19" width="9.11" height="9.08" />
+      <rect y="27.27" width="9.08" height="45.46" />
+    </ng-container>
+
+    <!-- O -->
+    <ng-container *ngIf="isDead">
+      <polygon points="72.733,27.27 63.643,27.27 63.643,34.486 56.427,34.486 56.427,43.577 63.643,43.577 63.643,50.793 72.733,50.793
+          72.733,43.577 79.949,43.577 79.949,34.486 72.733,34.486 	" />
+      <rect x="36.353" y="72.73" width="27.29" height="9.079" />
+      <rect x="63.643" y="63.65" width="9.091" height="9.08" />
+      <rect x="36.353" y="54.54" width="27.29" height="9.11" />
+      <rect x="27.273" y="63.65" width="9.079" height="9.08" />
+      <polygon points="27.273,50.793 36.353,50.793 36.353,43.571 43.574,43.571 43.574,34.492 36.353,34.492 36.353,27.27 27.273,27.27
+          27.273,34.492 20.052,34.492 20.052,43.571 27.273,43.571 	" />
+      <rect x="81.811" y="72.73" width="9.1" height="9.079" />
+      <rect x="90.91" y="27.27" width="9.09" height="45.46" />
+      <rect x="81.811" y="18.19" width="9.1" height="9.08" />
+      <rect x="72.73" y="81.81" width="9.08" height="9.11" />
+      <rect x="72.73" y="9.08" width="9.08" height="9.11" />
+      <rect x="27.271" y="90.92" width="45.46" height="9.08" />
+      <rect x="27.271" width="45.46" height="9.08" />
+      <rect x="18.19" y="81.81" width="9.08" height="9.11" />
+      <rect x="18.19" y="9.08" width="9.08" height="9.11" />
+      <rect x="9.08" y="72.73" width="9.11" height="9.079" />
+      <rect x="9.08" y="18.19" width="9.11" height="9.08" />
+      <rect y="27.27" width="9.08" height="45.46" />
+    </ng-container>
+
+    <!-- D -->
+    <ng-container *ngIf="isDone && !isDead">
+      <rect x="18.193" y="36.35" width="9.08" height="9.11" />
+      <rect x="36.353" y="36.35" width="9.11" height="9.11" />
+      <rect x="72.733" y="36.35" width="9.08" height="9.11" />
+      <rect x="54.543" y="36.35" width="9.1" height="9.11" />
+      <polygon points="54.543,54.54 45.463,54.54 36.353,54.54 27.273,54.54 27.273,63.65 27.273,72.73 36.353,72.73 36.353,63.65
+          45.463,63.65 54.543,63.65 63.643,63.65 63.643,72.73 72.733,72.73 72.733,63.65 72.733,54.54 63.643,54.54 	" />
+      <polygon
+        points="45.463,72.73 36.353,72.73 36.353,81.81 45.463,81.81 54.543,81.81 63.643,81.81 63.643,72.73 54.543,72.73 	" />
+      <rect x="63.643" y="27.27" width="9.091" height="9.08" />
+      <rect x="27.273" y="27.27" width="9.079" height="9.08" />
+      <rect x="81.811" y="72.73" width="9.1" height="9.079" />
+      <rect x="90.91" y="27.27" width="9.09" height="45.46" />
+      <rect x="81.811" y="18.19" width="9.1" height="9.08" />
+      <rect x="72.73" y="81.81" width="9.08" height="9.11" />
+      <rect x="72.73" y="9.08" width="9.08" height="9.11" />
+      <rect x="27.271" y="90.92" width="45.46" height="9.08" />
+      <rect x="27.271" width="45.46" height="9.08" />
+      <rect x="18.19" y="81.81" width="9.08" height="9.11" />
+      <rect x="18.19" y="9.08" width="9.08" height="9.11" />
+      <rect x="9.08" y="72.73" width="9.11" height="9.079" />
+      <rect x="9.08" y="18.19" width="9.11" height="9.08" />
+      <rect y="27.27" width="9.08" height="45.46" />
+    </ng-container>
+
+    <!-- I -->
+    <ng-container *ngIf="isLeftDown">
+      <rect x="65.91" y="51.129" width="9.091" height="9.08" />
+      <rect x="56.811" y="42.019" width="9.1" height="9.11" />
+      <rect x="25.006" y="51.129" width="9.079" height="9.08" />
+      <rect x="34.085" y="42.019" width="9.11" height="9.11" />
+      <rect x="65.91" y="32.939" width="9.091" height="9.08" />
+      <rect x="31.815" y="69.319" width="36.369" height="9.08" />
+      <rect x="25.006" y="32.939" width="9.079" height="9.08" />
+      <rect x="81.811" y="72.73" width="9.1" height="9.079" />
+      <rect x="90.91" y="27.27" width="9.09" height="45.46" />
+      <rect x="81.811" y="18.19" width="9.1" height="9.08" />
+      <rect x="72.73" y="81.81" width="9.08" height="9.11" />
+      <rect x="72.73" y="9.08" width="9.08" height="9.11" />
+      <rect x="27.271" y="90.92" width="45.46" height="9.08" />
+      <rect x="27.271" width="45.46" height="9.08" />
+      <rect x="18.19" y="81.81" width="9.08" height="9.11" />
+      <rect x="18.19" y="9.08" width="9.08" height="9.11" />
+      <rect x="9.08" y="72.73" width="9.11" height="9.079" />
+      <rect x="9.08" y="18.19" width="9.11" height="9.08" />
+      <rect y="27.27" width="9.08" height="45.46" />
+    </ng-container>
+  </svg>
+</ng-template>

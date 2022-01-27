@@ -8,7 +8,18 @@
     "strict": true,
     "noImplicitOverride": true,
     "noPropertyAccessFromIndexSignature": true,
+    "strictPropertyInitialization": false,
     "noImplicitReturns": true,
+    "paths": {
+      "minesweeper": [
+        "dist/minesweeper/minesweeper",
+        "dist/minesweeper"
+      ],
+      "service": [
+        "dist/service/service",
+        "dist/service"
+      ]
+    },
     "noFallthroughCasesInSwitch": true,
     "sourceMap": true,
     "declaration": false,
@@ -26,7 +37,7 @@
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
-    "strictInputAccessModifiers": true,
-    "strictTemplates": true
+    "strictInputAccessModifiers": false,
+    "strictTemplates": false
   }
 }

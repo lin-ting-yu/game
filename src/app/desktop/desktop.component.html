@@ -1,0 +1,33 @@
+<div class="container">
+  <ng-container *ngFor="let window of windowList">
+    <app-window
+      [id]="window.id"
+      [openRect]="window.openRect"
+      [closeRect]="window.closeRect"
+      [x]="window.x"
+      [y]="window.y"
+      [zIndex]="window.zIndex"
+      [isWidthFull]="window.isWidthFull"
+      [isHeightFull]="window.isHeightFull"
+      [isFocus]="window.isFocus"
+      [isCollapse]="window.isCollapse"
+      (collapseClick)="collapseClick($event)"
+      (zoomClick)="''"
+      (closeClick)="''"
+      (updateOpenRect)="updateOpenRect(window, $event)"
+    ></app-window>
+  </ng-container>
+</div>
+
+<div class="bar">
+  <app-task-bar>
+    <ng-container *ngFor="let item of barItemList">
+      <app-bar-item
+        [id]="item.id"
+        [icon]="item.icon"
+        [name]="item.name"
+        (onItemClick)="itemClick($event)"
+      ></app-bar-item>
+    </ng-container>
+  </app-task-bar>
+</div>

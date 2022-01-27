@@ -1,0 +1,27 @@
+@import "./../../../../../scss/export.scss";
+
+
+:host {
+  display: flex;
+  height: 100%;
+}
+.item {
+  display: flex;
+  align-items: center;
+  min-width: grid(40);
+  height: 100%;
+  padding: 0 grid(3);
+  border-color: $color-3;
+  border-style: solid;
+  border-width: 0 2px 0 2px;
+  cursor: pointer;
+  .icon {
+    width: grid(4);
+    height: grid(4);
+    margin-right: grid(2);
+    background-color: #f24;
+  }
+  .name {
+    font-size: grid(3);
+  }
+}

@@ -1,0 +1,78 @@
+<div
+  class="header"
+  (mousedown)="headerDown($event)"
+>
+  <div
+    *ngIf="isShowSelect"
+    class="select"
+  >
+    <!-- <div class="select-text">{{ innerLevel }}</div> -->
+    <div class="select-icon">
+      <svg-icon src="/assets/image/icon/header-arrow.svg"></svg-icon>
+    </div>
+    <!-- <select [(ngModel)]="innerLevel">
+            <ng-container *ngFor="let data of options">
+                <option [value]="data.value">{{ data.text }}</option>
+            </ng-container>
+        </select> -->
+  </div>
+  <div
+    *ngIf="isCollapseDisabled"
+    class="icon"
+    (click)="collapseClick.emit(id)"
+  >
+    <svg-icon src="/assets/image/icon/header-collapse.svg"></svg-icon>
+  </div>
+  <div
+    *ngIf="isZoomDisabled"
+    class="icon"
+    (click)="zoomClick.emit()"
+  >
+    <svg-icon src="/assets/image/icon/header-zoom.svg"></svg-icon>
+  </div>
+  <div
+    *ngIf="isCloseDisabled"
+    class="icon"
+    (click)="closeClick.emit()"
+  >
+    <svg-icon src="/assets/image/icon/header-cross.svg"></svg-icon>
+  </div>
+</div>
+<div class="body">
+  <ng-content></ng-content>
+</div>
+
+<ng-container *ngIf="!isCanControlSize">
+  <div
+    class="size-control top"
+    (mousedown)="sizeControlDown(SizeControlType.Top, $event)"
+  ></div>
+  <div
+    class="size-control top-right"
+    (mousedown)="sizeControlDown(SizeControlType.TopRight, $event)"
+  ></div>
+  <div
+    class="size-control right"
+    (mousedown)="sizeControlDown(SizeControlType.Right, $event)"
+  ></div>
+  <div
+    class="size-control bottom-right"
+    (mousedown)="sizeControlDown(SizeControlType.BottomRight, $event)"
+  ></div>
+  <div
+    class="size-control bottom"
+    (mousedown)="sizeControlDown(SizeControlType.Bottom, $event)"
+  ></div>
+  <div
+    class="size-control bottom-left"
+    (mousedown)="sizeControlDown(SizeControlType.BottomLeft, $event)"
+  ></div>
+  <div
+    class="size-control left"
+    (mousedown)="sizeControlDown(SizeControlType.Left, $event)"
+  ></div>
+  <div
+    class="size-control top-left"
+    (mousedown)="sizeControlDown(SizeControlType.TopLeft, $event)"
+  ></div>
+</ng-container>
