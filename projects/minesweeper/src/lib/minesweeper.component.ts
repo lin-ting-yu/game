@@ -13,24 +13,24 @@ import {
 import { OpenLandEnum } from '../public-api';
 import { Land, Minesweeper } from './core/minesweeper';
 
-enum Level {
+export enum MinesweeperLevel {
   Easy = 'Easy',
   Normal = 'Normal',
   Hard = 'Hard',
 }
 
 const minesweeperLevelData = {
-  [Level.Easy]: {
+  [MinesweeperLevel.Easy]: {
     width: '.'.repeat(9).split(''),
     height: '.'.repeat(9).split(''),
     landmine: 10,
   },
-  [Level.Normal]: {
+  [MinesweeperLevel.Normal]: {
     width: '.'.repeat(16).split(''),
     height: '.'.repeat(16).split(''),
     landmine: 40,
   },
-  [Level.Hard]: {
+  [MinesweeperLevel.Hard]: {
     width: '.'.repeat(30).split(''),
     height: '.'.repeat(16).split(''),
     landmine: 99,
@@ -50,24 +50,24 @@ export class MinesweeperComponent implements OnInit, OnChanges, OnDestroy {
     private cdRef: ChangeDetectorRef
   ) { }
 
-  @Input() readonly level: Level = Level.Easy;
+  @Input() readonly level: MinesweeperLevel = MinesweeperLevel.Easy;
   @Input() readonly isCollaspe = false;
 
   @Input() readonly isShowSelect = true;
   @Input() readonly isShowClose = true;
   @Input() readonly isShowCollapse = true;
 
-  @Output() onSelectChange = new EventEmitter<Level>();
+  @Output() onSelectChange = new EventEmitter<MinesweeperLevel>();
   @Output() onCloseClick = new EventEmitter<void>();
   @Output() onCollaspe = new EventEmitter<boolean>();
 
 
-  readonly options = Object.keys(Level).map(key => ({
+  readonly options = Object.keys(MinesweeperLevel).map(key => ({
     value: key ,
-    text: Level[key as any as Level]
+    text: MinesweeperLevel[key as any as MinesweeperLevel]
   }));
 
-  private _innerLevel: Level;
+  private _innerLevel: MinesweeperLevel;
   set innerLevel(innerLevel) {
     if (this._innerLevel !== innerLevel) {
       this._innerLevel = innerLevel;
@@ -75,7 +75,7 @@ export class MinesweeperComponent implements OnInit, OnChanges, OnDestroy {
       this.init();
     }
   }
-  get innerLevel(): Level {
+  get innerLevel(): MinesweeperLevel {
     return this._innerLevel;
   }
 
@@ -109,13 +109,13 @@ export class MinesweeperComponent implements OnInit, OnChanges, OnDestroy {
   };
 
   ngOnInit(): void {
-    this.innerLevel = this.level || Level.Easy;
+    this.innerLevel = this.level || MinesweeperLevel.Easy;
     this.init();
   }
 
   ngOnChanges(changes: SimpleChanges): void {
       if (changes['level']) {
-        this.innerLevel = this.level || Level.Easy;
+        this.innerLevel = this.level || MinesweeperLevel.Easy;
         this.init();
       }
   }

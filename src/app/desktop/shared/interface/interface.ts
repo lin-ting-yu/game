@@ -1,3 +1,4 @@
+import { Type } from "@angular/core";
 import { Observable } from "rxjs";
 
 
@@ -7,18 +8,30 @@ export interface DOMRect {
   x: number;
   y: number;
 }
-
+export interface ContentData {
+  component: Type<unknown>;
+  inputs?: {
+    [key: string]: any;
+  }
+}
 export interface WindowData {
   id: string;
   name: string;
+  icon: string
   openRect: DOMRect;
   closeRect: DOMRect;
   isWidthFull: boolean;
   isHeightFull: boolean;
+  minWidth: number;
+  minHeight: number;
   zIndex: number;
   isCollapse: boolean;
   isFocus: boolean;
-  isAutoSize: boolean;
+  isCollapseDisabled: boolean;
+  isZoomDisabled: boolean;
+  isCloseDisabled: boolean;
+  isCanControlSize: boolean;
+  content?: ContentData
 }
 
 export interface BarItem {
@@ -48,5 +61,6 @@ export enum SizeControlType {
 
 export interface UpdateOpenRect {
   type: 'move' | 'resize';
+  sizeControlType: SizeControlType | null;
   rect: DOMRect;
 }

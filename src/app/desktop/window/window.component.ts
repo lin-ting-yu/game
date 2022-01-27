@@ -1,7 +1,8 @@
-import { Component, ElementRef, EventEmitter, HostBinding, HostListener, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges } from '@angular/core';
+import { Component, ComponentFactoryResolver, ComponentRef, ElementRef, EventEmitter, HostBinding, HostListener, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import * as createjs from 'createjs-module';
 import { Position } from 'projects/minesweeper/src/public-api';
-import { SizeControlType, UpdateOpenRect, DOMRect } from '../shared';
+import { SizeControlType, UpdateOpenRect, DOMRect, ContentData, WindowData } from '../shared';
 
 @Component({
   selector: 'app-window',
@@ -11,53 +12,56 @@ import { SizeControlType, UpdateOpenRect, DOMRect } from '../shared';
 export class WindowComponent implements OnInit, OnChanges {
 
   constructor(
-    private el: ElementRef
+    private el: ElementRef,
+    private sanitizer: DomSanitizer,
+    private viewContainerRef: ViewContainerRef,
+    private componentFactoryResolver: ComponentFactoryResolver
   ) { }
 
+  @ViewChild('bodyContent', { read: ViewContainerRef }) bodyContent: ViewContainerRef;
+  // @Input() readonly windowData: WindowData;
   @Input() readonly id: string;
   @Input() readonly openRect: DOMRect;
   @Input() readonly closeRect: DOMRect;
+  @Input() readonly content: ContentData;
   @Input() readonly isWidthFull: boolean;
   @Input() readonly isHeightFull: boolean;
   @Input() readonly zIndex: number;
   @Input() readonly isFocus: boolean;
-
   @Input() readonly isCollapse: boolean;
   @Input() readonly isShowSelect: boolean;
   @Input() readonly isCanControlSize: boolean;
+  @Input() readonly isCollapseDisabled: boolean;
+  @Input() readonly isZoomDisabled: boolean;
+  @Input() readonly isCloseDisabled: boolean;
 
-  @Input() readonly isCollapseDisabled: boolean = true;
-  @Input() readonly isZoomDisabled: boolean = true;
-  @Input() readonly isCloseDisabled: boolean = true;
   @Output() onOpened = new EventEmitter<void>();
   @Output() onClosed = new EventEmitter<void>();
 
   @Output() collapseClick = new EventEmitter<string>();
   @Output() zoomClick = new EventEmitter<void>();
-  @Output() closeClick = new EventEmitter<void>();
+  @Output() closeClick = new EventEmitter<string>();
   @Output() updateOpenRect = new EventEmitter<UpdateOpenRect>();
 
-  @HostBinding('style.transform') get translate() {
-    return this.innerTranslate;
+  @HostBinding('style')
+  get hostStyle(): SafeStyle {
+    return this.sanitizer.bypassSecurityTrustStyle(
+      `transform: ${this.innerTranslate}; ` +
+      `width: ${this.innerWidth}; ` +
+      `height: ${this.innerHeight}; ` +
+      `z-index: ${(this.isCollapse || this.isCssMoving) ? 9999999 : this.zIndex}; ` +
+      `opacity: ${this.isCollapse ? 0 : 1}; `
+    );
   }
-  @HostBinding('style.width') get width() {
-    return this.innerWidth;
+
+  @HostBinding('class')
+  get hostClass(): string {
+    return (
+      `${this.isCssMoving ? 'moving ' : ''}` +
+      `${this.isCollapse ? 'collapse ' : ''}`
+    );
   }
-  @HostBinding('style.height') get height() {
-    return this.innerHeight;
-  }
-  @HostBinding('style.z-index') get z() {
-    return (this.isCollapse || this.isCssMoving) ? 9999999 : this.zIndex;
-  }
-  @HostBinding('style.opacity') get opacity() {
-    return this.isCollapse ? 0 : 1;
-  }
-  @HostBinding('class.moving') get moving() {
-    return this.isCssMoving;
-  }
-  @HostBinding('class.collapse') get collapse() {
-    return this.isCollapse;
-  }
+
   @HostListener('document:mousemove', ['$event']) mousemove(event: MouseEvent) {
     this.handleMoveChange(event);
     this.handleSizeChange(event);
@@ -88,6 +92,7 @@ export class WindowComponent implements OnInit, OnChanges {
   // 拖拉
   private isHeaderDown = false;
 
+  private contentComponent: ComponentRef<unknown>;
 
   ngOnInit(): void {
     if (this.isCollapse) {
@@ -100,6 +105,7 @@ export class WindowComponent implements OnInit, OnChanges {
   ngOnChanges(changes: {
     openRect: SimpleChange;
     isCollapse: SimpleChange;
+    contentdata: SimpleChange;
   }): void {
     if (changes.openRect && this.openRect) {
       if (!this.isCollapse) {
@@ -113,6 +119,15 @@ export class WindowComponent implements OnInit, OnChanges {
         this.openWindow();
       }
     }
+  }
+
+  ngOnDestroy(): void {
+    if (this.contentComponent) {
+      this.contentComponent.destroy();
+    }
+  }
+  ngAfterViewInit(): void {
+    this.createContent();
   }
 
   updateState(): void {
@@ -158,6 +173,7 @@ export class WindowComponent implements OnInit, OnChanges {
     }
     this.updateOpenRect.emit({
       type: 'move',
+      sizeControlType: null,
       rect: {
         width: this.openRect.width,
         height: this.openRect.height,
@@ -168,7 +184,7 @@ export class WindowComponent implements OnInit, OnChanges {
   }
 
   private handleSizeChange(event: MouseEvent): void {
-    if (!this.isSizeControlDown || this.isCanControlSize) {
+    if (!this.isSizeControlDown || !this.isCanControlSize) {
       return;
     }
 
@@ -208,19 +224,13 @@ export class WindowComponent implements OnInit, OnChanges {
     }
     this.updateOpenRect.emit({
       type: 'resize',
+      sizeControlType: this.sizeControlType,
       rect: newRect
     });
 
   }
 
   private closeWindow(): void {
-    const rect = (this.el.nativeElement as HTMLElement).getBoundingClientRect();
-    this.innerStyle({
-      x: this.openRect.x,
-      y: this.openRect.y,
-      width: rect.width,
-      height: rect.height
-    });
     this.isCssMoving = true;
     setTimeout(() => {
       this.innerStyle(this.closeRect);
@@ -232,6 +242,29 @@ export class WindowComponent implements OnInit, OnChanges {
     setTimeout(() => {
       this.innerStyle(this.openRect);
     }, 0);
+  }
+
+  private createContent(): void {
+    if (!this.content) {
+      return;
+    }
+    if (this.contentComponent) {
+      this.contentComponent.destroy();
+    }
+    this.contentComponent = this.bodyContent.createComponent(this.content.component);
+    this.updateInput();
+
+  }
+  private updateInput(): void {
+    if (!this.content || !this.contentComponent) {
+      return;
+    }
+    const inputs = this.content.inputs;
+    if (inputs) {
+      Object.keys(inputs).forEach(key => {
+        (this.contentComponent as any).instance[key] = inputs[key]
+      })
+    }
   }
 
 }

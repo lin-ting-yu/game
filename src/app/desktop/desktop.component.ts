@@ -1,6 +1,7 @@
 import { Component, ElementRef, HostListener, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { MinesweeperComponent, MinesweeperLevel } from 'projects/minesweeper/src/public-api';
 import { Observable } from 'rxjs';
-import { BarItem, UpdateOpenRect, WindowData, DOMRect, BarItemClickData } from './shared';
+import { BarItem, UpdateOpenRect, WindowData, DOMRect, BarItemClickData, SizeControlType } from './shared';
 import { DesktopRectService } from './shared/service/desktop-rect.service';
 import { BarItemComponent } from './task-bar/bar-item/bar-item.component';
 
@@ -25,43 +26,54 @@ export class DesktopComponent implements OnInit {
   windowList: WindowData[] = [
     {
       id: 'o23c03fmwpeofjwpeok',
-      name: 'sssasxasx',
+      name: 'Minesweeper',
+      icon: '',
       openRect: {
-        width: 200,
-        height: 300,
-        x: 300,
-        y: 300,
+        width: 256,
+        height: 340,
+        x: 100,
+        y: 100,
       },
       closeRect: {
-        width: 200,
-        height: 300,
-        x: 300,
-        y: 300,
+        width: 0,
+        height: 0,
+        x: 0,
+        y: 0,
       },
+      minWidth: 200,
+      minHeight: 200,
       isWidthFull: false,
       isHeightFull: false,
       zIndex: 0,
       isCollapse: false,
       isFocus: true,
-      isAutoSize: false,
+      isCollapseDisabled: true,
+      isZoomDisabled: false,
+      isCloseDisabled: true,
+      isCanControlSize: false,
+      content: {
+        component: MinesweeperComponent,
+        inputs: {
+          level: MinesweeperLevel.Easy
+        }
+      }
     }
   ];
 
-  barItemList: BarItem[] = [
-    {
-      id: 'o23c03fmwpeofjwpeok',
-      icon: '',
-      name: 'sssasxasx'
-    }
-  ];
+  barItemList: BarItem[] = [];
 
   ngOnInit(): void {
+    this.barItemList = this.windowList.map(win => ({
+      id: win.id,
+      icon: win.icon,
+      name: win.name
+    }));
   }
   ngAfterViewInit(): void {
     this.setDOM();
   }
 
-  collapseClick(id: string): void {
+  collapseWindow(id: string): void {
     const barItem = this.barItemComponentList.toArray().find(cpt => cpt.id === id);
     const windowData = this.windowList.find(w => w.id === id);
     if (windowData) {
@@ -69,6 +81,18 @@ export class DesktopComponent implements OnInit {
         windowData.closeRect = barItem.getRect();
       }
       windowData.isCollapse = true;
+    }
+  }
+
+  closeWindow(id: string): void {
+    const barItemIndex = this.barItemComponentList.toArray().findIndex(cpt => cpt.id === id);
+    const windowIndex = this.windowList.findIndex(w => w.id === id);
+
+    if (barItemIndex > -1) {
+      this.barItemList.splice(barItemIndex, 1);
+    }
+    if (windowIndex > -1) {
+      this.windowList.splice(windowIndex, 1);
     }
   }
 
@@ -89,22 +113,42 @@ export class DesktopComponent implements OnInit {
     const innerWindowRect = { ...updateOpenRect.rect };
     const rect = this.desktopRectService.getRect();
     const maxHeight = rect.height - DesktopRectService.taskBarHeight;
+
+    windowData.isWidthFull = false;
+    windowData.isHeightFull = false;
+
+    // 判斷左出界
     if (innerWindowRect.x < 0) {
       if (updateOpenRect.type === 'resize') {
         innerWindowRect.width += innerWindowRect.x;
       }
       innerWindowRect.x = 0;
     }
+    // 判斷右出界
     if (innerWindowRect.x + innerWindowRect.width > rect.width) {
       if (updateOpenRect.type === 'resize') {
         innerWindowRect.width = rect.width - innerWindowRect.x;
+        innerWindowRect.width = Math.min(rect.width, innerWindowRect.width);
+
       } else {
         innerWindowRect.x = rect.width - innerWindowRect.width;
       }
     }
+    // 檢查最小寬
+    if (innerWindowRect.width < windowData.minWidth) {
+      if (
+        updateOpenRect.sizeControlType === SizeControlType.Left ||
+        updateOpenRect.sizeControlType === SizeControlType.TopLeft ||
+        updateOpenRect.sizeControlType === SizeControlType.BottomLeft
+      ) {
+        let diff = innerWindowRect.width - windowData.minWidth;
+        innerWindowRect.x += diff;
+      }
+      innerWindowRect.width = windowData.minWidth;
+    }
 
-    innerWindowRect.width = Math.min(rect.width, innerWindowRect.width);
 
+    // 判斷下出界
     if (innerWindowRect.y + innerWindowRect.height + DesktopRectService.taskBarHeight > rect.height) {
       if (updateOpenRect.type === 'resize') {
         innerWindowRect.height = maxHeight - innerWindowRect.y;
@@ -113,15 +157,27 @@ export class DesktopComponent implements OnInit {
       }
     }
 
+    // 判斷上出界
     if (innerWindowRect.y < 0) {
       if (updateOpenRect.type === 'resize') {
         innerWindowRect.height += innerWindowRect.y;
+        innerWindowRect.height = Math.min(maxHeight, innerWindowRect.height);
       }
       innerWindowRect.y = 0;
     }
 
-    innerWindowRect.height = Math.min(maxHeight, innerWindowRect.height);
-
+    // 檢查最小高
+    if (innerWindowRect.height < windowData.minHeight) {
+      if (
+        updateOpenRect.sizeControlType === SizeControlType.Top ||
+        updateOpenRect.sizeControlType === SizeControlType.TopLeft ||
+        updateOpenRect.sizeControlType === SizeControlType.TopRight
+      ) {
+        let diff = innerWindowRect.height - windowData.minHeight;
+        innerWindowRect.y += diff;
+      }
+      innerWindowRect.height = windowData.minHeight;
+    }
     windowData.openRect = innerWindowRect;
   }
 

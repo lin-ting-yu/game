@@ -111,8 +111,17 @@ $m-mask-paddng: 2px;
     }
   }
 }
+
 .minesweeper-body {
-  border: solid ($m-border-size * 2) $m-color-0;
+  // 為了放容器用的
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  // border: solid ($m-border-size * 2) $m-color-0;
+
   border-top: none;
   padding: grid(4.5);
   background-color: $m-color-2;
@@ -125,6 +134,7 @@ $m-mask-paddng: 2px;
   .minesweeper-dash {
     display: flex;
     justify-content: space-between;
+    width: 100%;
     margin-bottom: grid(4);
     .minesweeper-number,
     .minesweeper-face {

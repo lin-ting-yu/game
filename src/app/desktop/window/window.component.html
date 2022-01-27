@@ -26,23 +26,23 @@
   <div
     *ngIf="isZoomDisabled"
     class="icon"
-    (click)="zoomClick.emit()"
+    (click)="zoomClick.emit(id)"
   >
     <svg-icon src="/assets/image/icon/header-zoom.svg"></svg-icon>
   </div>
   <div
     *ngIf="isCloseDisabled"
     class="icon"
-    (click)="closeClick.emit()"
+    (click)="closeClick.emit(id)"
   >
     <svg-icon src="/assets/image/icon/header-cross.svg"></svg-icon>
   </div>
 </div>
 <div class="body">
-  <ng-content></ng-content>
+  <ng-template #bodyContent></ng-template>
 </div>
 
-<ng-container *ngIf="!isCanControlSize">
+<ng-container *ngIf="isCanControlSize">
   <div
     class="size-control top"
     (mousedown)="sizeControlDown(SizeControlType.Top, $event)"

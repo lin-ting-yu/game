@@ -1,4 +1,4 @@
-<div class="minesweeper-header">
+<!-- <div class="minesweeper-header">
   <div *ngIf="isShowSelect" class="minesweeper-select">
     <div class="minesweeper-select-text">{{ innerLevel }}</div>
     <div class="minesweeper-select-icon">
@@ -17,7 +17,7 @@
   <div *ngIf="isShowClose" class="minesweeper-icon" (click)="onCloseClick.emit()">
     <ng-container *ngTemplateOutlet="close"></ng-container>
   </div>
-</div>
+</div> -->
 <div class="minesweeper-body" [ngClass]="{
     'minesweeper-is-done': isDone || isDead
   }" (contextmenu)="false">

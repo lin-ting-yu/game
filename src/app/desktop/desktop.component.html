@@ -4,16 +4,21 @@
       [id]="window.id"
       [openRect]="window.openRect"
       [closeRect]="window.closeRect"
-      [x]="window.x"
-      [y]="window.y"
+      [content]="window.content"
       [zIndex]="window.zIndex"
       [isWidthFull]="window.isWidthFull"
       [isHeightFull]="window.isHeightFull"
       [isFocus]="window.isFocus"
       [isCollapse]="window.isCollapse"
-      (collapseClick)="collapseClick($event)"
+      [isCollapseDisabled]="window.isCollapseDisabled"
+      [isZoomDisabled]="window.isZoomDisabled"
+      [isCloseDisabled]="window.isCloseDisabled"
+      [isCanControlSize]="window.isCanControlSize"
+
+
+      (collapseClick)="collapseWindow($event)"
       (zoomClick)="''"
-      (closeClick)="''"
+      (closeClick)="closeWindow($event)"
       (updateOpenRect)="updateOpenRect(window, $event)"
     ></app-window>
   </ng-container>
