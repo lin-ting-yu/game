@@ -47,6 +47,7 @@ export class DesktopComponent implements OnInit {
       zIndex: 0,
       isCollapse: false,
       isFocus: true,
+      isShowSelect: false,
       isCollapseDisabled: true,
       isZoomDisabled: false,
       isCloseDisabled: true,
@@ -83,6 +84,19 @@ export class DesktopComponent implements OnInit {
       windowData.isCollapse = true;
     }
   }
+  itemClick(event: BarItemClickData): void {
+    const windowData = this.windowList.find(w => w.id === event.id);
+    if (windowData) {
+      windowData.closeRect = {
+        x: event.x,
+        y: event.y,
+        width: event.width,
+        height: event.height,
+      };
+
+      windowData.isCollapse = false;
+    }
+  }
 
   closeWindow(id: string): void {
     const barItemIndex = this.barItemComponentList.toArray().findIndex(cpt => cpt.id === id);
@@ -96,18 +110,7 @@ export class DesktopComponent implements OnInit {
     }
   }
 
-  itemClick(event: BarItemClickData): void {
-    const windowData = this.windowList.find(w => w.id === event.id);
-    if (windowData) {
-      windowData.closeRect = {
-        x: event.x,
-        y: event.y,
-        width: event.width,
-        height: event.height,
-      };
-      windowData.isCollapse = false;
-    }
-  }
+
 
   updateOpenRect(windowData: WindowData, updateOpenRect: UpdateOpenRect): void {
     const innerWindowRect = { ...updateOpenRect.rect };

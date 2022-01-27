@@ -25,6 +25,7 @@ export interface WindowData {
   minWidth: number;
   minHeight: number;
   zIndex: number;
+  isShowSelect: boolean;
   isCollapse: boolean;
   isFocus: boolean;
   isCollapseDisabled: boolean;

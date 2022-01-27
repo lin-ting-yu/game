@@ -3,7 +3,7 @@
   (mousedown)="headerDown($event)"
 >
   <div
-    *ngIf="isShowSelect"
+    *ngIf="windowData.isShowSelect"
     class="select"
   >
     <!-- <div class="select-text">{{ innerLevel }}</div> -->
@@ -17,23 +17,23 @@
         </select> -->
   </div>
   <div
-    *ngIf="isCollapseDisabled"
+    *ngIf="windowData.isCollapseDisabled"
     class="icon"
-    (click)="collapseClick.emit(id)"
+    (click)="collapseClick.emit(windowData.id)"
   >
     <svg-icon src="/assets/image/icon/header-collapse.svg"></svg-icon>
   </div>
   <div
-    *ngIf="isZoomDisabled"
+    *ngIf="windowData.isZoomDisabled"
     class="icon"
-    (click)="zoomClick.emit(id)"
+    (click)="zoomClick.emit(windowData.id)"
   >
     <svg-icon src="/assets/image/icon/header-zoom.svg"></svg-icon>
   </div>
   <div
-    *ngIf="isCloseDisabled"
+    *ngIf="windowData.isCloseDisabled"
     class="icon"
-    (click)="closeClick.emit(id)"
+    (click)="closeClick.emit(windowData.id)"
   >
     <svg-icon src="/assets/image/icon/header-cross.svg"></svg-icon>
   </div>
@@ -42,7 +42,7 @@
   <ng-template #bodyContent></ng-template>
 </div>
 
-<ng-container *ngIf="isCanControlSize">
+<ng-container *ngIf="windowData.isCanControlSize">
   <div
     class="size-control top"
     (mousedown)="sizeControlDown(SizeControlType.Top, $event)"

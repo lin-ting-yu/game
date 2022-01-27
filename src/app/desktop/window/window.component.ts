@@ -14,26 +14,12 @@ export class WindowComponent implements OnInit, OnChanges {
   constructor(
     private el: ElementRef,
     private sanitizer: DomSanitizer,
-    private viewContainerRef: ViewContainerRef,
-    private componentFactoryResolver: ComponentFactoryResolver
   ) { }
 
   @ViewChild('bodyContent', { read: ViewContainerRef }) bodyContent: ViewContainerRef;
-  // @Input() readonly windowData: WindowData;
-  @Input() readonly id: string;
+  @Input() readonly windowData: WindowData;
   @Input() readonly openRect: DOMRect;
-  @Input() readonly closeRect: DOMRect;
-  @Input() readonly content: ContentData;
-  @Input() readonly isWidthFull: boolean;
-  @Input() readonly isHeightFull: boolean;
-  @Input() readonly zIndex: number;
-  @Input() readonly isFocus: boolean;
   @Input() readonly isCollapse: boolean;
-  @Input() readonly isShowSelect: boolean;
-  @Input() readonly isCanControlSize: boolean;
-  @Input() readonly isCollapseDisabled: boolean;
-  @Input() readonly isZoomDisabled: boolean;
-  @Input() readonly isCloseDisabled: boolean;
 
   @Output() onOpened = new EventEmitter<void>();
   @Output() onClosed = new EventEmitter<void>();
@@ -48,9 +34,7 @@ export class WindowComponent implements OnInit, OnChanges {
     return this.sanitizer.bypassSecurityTrustStyle(
       `transform: ${this.innerTranslate}; ` +
       `width: ${this.innerWidth}; ` +
-      `height: ${this.innerHeight}; ` +
-      `z-index: ${(this.isCollapse || this.isCssMoving) ? 9999999 : this.zIndex}; ` +
-      `opacity: ${this.isCollapse ? 0 : 1}; `
+      `height: ${this.innerHeight}; `
     );
   }
 
@@ -96,20 +80,19 @@ export class WindowComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     if (this.isCollapse) {
-      this.innerStyle(this.closeRect);
+      this.innerStyle(this.windowData.closeRect);
     } else {
-      this.innerStyle(this.openRect);
+      this.innerStyle(this.windowData.openRect);
     }
   }
 
   ngOnChanges(changes: {
     openRect: SimpleChange;
     isCollapse: SimpleChange;
-    contentdata: SimpleChange;
   }): void {
     if (changes.openRect && this.openRect) {
       if (!this.isCollapse) {
-        this.innerStyle(this.openRect);
+        this.innerStyle(this.windowData.openRect);
       }
     }
     if (changes.isCollapse && typeof changes.isCollapse.previousValue === 'boolean') {
@@ -156,13 +139,13 @@ export class WindowComponent implements OnInit, OnChanges {
   }
 
   private saveMouseDate(event: MouseEvent): void {
-    this.orgOpenRect = { ...this.openRect };
+    this.orgOpenRect = { ...this.windowData.openRect };
     this.startDownPos.x = event.x;
     this.startDownPos.y = event.y;
   }
 
-  private innerStyle(DOMRect: DOMRect): void {
-    this.innerTranslate = `translate(${DOMRect.x}px, ${DOMRect.y}px)`;
+  private innerStyle(DOMRect: DOMRect, scale = 1): void {
+    this.innerTranslate = `translate(${DOMRect.x}px, ${DOMRect.y}px) scale(${scale})`;
     this.innerWidth = `${DOMRect.width}px`;
     this.innerHeight = `${DOMRect.height}px`;
   }
@@ -175,8 +158,8 @@ export class WindowComponent implements OnInit, OnChanges {
       type: 'move',
       sizeControlType: null,
       rect: {
-        width: this.openRect.width,
-        height: this.openRect.height,
+        width: this.windowData.openRect.width,
+        height: this.windowData.openRect.height,
         x: this.orgOpenRect.x + event.x - this.startDownPos.x,
         y: this.orgOpenRect.y + event.y - this.startDownPos.y,
       }
@@ -184,7 +167,7 @@ export class WindowComponent implements OnInit, OnChanges {
   }
 
   private handleSizeChange(event: MouseEvent): void {
-    if (!this.isSizeControlDown || !this.isCanControlSize) {
+    if (!this.isSizeControlDown || !this.windowData.isCanControlSize) {
       return;
     }
 
@@ -233,33 +216,35 @@ export class WindowComponent implements OnInit, OnChanges {
   private closeWindow(): void {
     this.isCssMoving = true;
     setTimeout(() => {
-      this.innerStyle(this.closeRect);
+      this.innerStyle(this.windowData.closeRect, 0);
     }, 0);
   }
   private openWindow(): void {
-    this.innerStyle(this.closeRect);
-    this.isCssMoving = true;
+    this.innerStyle(this.windowData.closeRect, 0);
     setTimeout(() => {
-      this.innerStyle(this.openRect);
+      this.isCssMoving = true;
+      setTimeout(() => {
+        this.innerStyle(this.windowData.openRect);
+      }, 0);
     }, 0);
   }
 
   private createContent(): void {
-    if (!this.content) {
+    if (!this.windowData.content) {
       return;
     }
     if (this.contentComponent) {
       this.contentComponent.destroy();
     }
-    this.contentComponent = this.bodyContent.createComponent(this.content.component);
+    this.contentComponent = this.bodyContent.createComponent(this.windowData.content.component);
     this.updateInput();
 
   }
   private updateInput(): void {
-    if (!this.content || !this.contentComponent) {
+    if (!this.windowData.content || !this.contentComponent) {
       return;
     }
-    const inputs = this.content.inputs;
+    const inputs = this.windowData.content.inputs;
     if (inputs) {
       Object.keys(inputs).forEach(key => {
         (this.contentComponent as any).instance[key] = inputs[key]
