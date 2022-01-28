@@ -8,12 +8,26 @@ $border-size: 1px;
   position: absolute;
   left: 0;
   top: 0;
+  $size-fn: cubic-bezier(0, 0, 0, 0);
+  $size-fn-collapse: cubic-bezier(0.13, 0.65, 0.68, 0.93);
+  $transform-fn: cubic-bezier(0.49, 0.06, 0.09, 0.99);
   &.moving {
     transition: 0.5s;
-    transition-timing-function: cubic-bezier(0.49, 0.06, 0.09, 0.99);
+    transition-property: width, height, transform;
+    transition-timing-function: $size-fn, $size-fn, $transform-fn;
   }
   &.collapse {
     pointer-events: none;
+    transition-property: width, height, transform;
+    transition-timing-function: $size-fn-collapse, $size-fn-collapse, $transform-fn;
+  }
+  &.focus {
+    .header {
+      background-color: $color-0;
+    }
+    .body {
+      border-color: $color-0;
+    }
   }
 }
 .header {
@@ -21,7 +35,7 @@ $border-size: 1px;
   align-items: center;
   height: grid(6);
   border-radius: grid(2.5) grid(2.5) 0 0;
-  background-color: $color-0;
+  background-color: $color-1;
   cursor: move;
 
   &:after {
@@ -102,7 +116,7 @@ $border-size: 1px;
 .body {
   flex: 1;
   height: 0;
-  border: solid ($border-size * 2) $color-0;
+  border: solid ($border-size * 2) $color-1;
   border-top: none;
   background-color: $color-5;
   border-radius: 0 0 grid(2.5) grid(2.5);

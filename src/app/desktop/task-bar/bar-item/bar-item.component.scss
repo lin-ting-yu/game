@@ -1,9 +1,15 @@
 @import "./../../../../../scss/export.scss";
 
+::ng-deep {
+  app-bar-item + app-bar-item {
+    margin-left: -2px;
+  }
+}
 
 :host {
   display: flex;
   height: 100%;
+
 }
 .item {
   display: flex;

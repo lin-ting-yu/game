@@ -1,9 +1,23 @@
 <div class="container">
+  <div class="dasktop-item-container">
+    <app-desktop-item
+      [icon]="''"
+      [name]="'Minesweeper'"
+      (onDblclick)="createMinesweeper($event)"
+    ></app-desktop-item>
+    <app-desktop-item
+      [icon]="''"
+      [name]="'Minesweeper'"
+      (onDblclick)="createMinesweeper($event)"
+    ></app-desktop-item>
+
+  </div>
   <ng-container *ngFor="let window of windowList">
     <app-window
       [windowData]="window"
       [openRect]="window.openRect"
       [isCollapse]="window.isCollapse"
+      (click)="toTop(window.id)"
       (collapseClick)="collapseWindow($event)"
       (zoomClick)="''"
       (closeClick)="closeWindow($event)"

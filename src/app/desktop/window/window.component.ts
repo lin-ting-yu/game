@@ -21,9 +21,6 @@ export class WindowComponent implements OnInit, OnChanges {
   @Input() readonly openRect: DOMRect;
   @Input() readonly isCollapse: boolean;
 
-  @Output() onOpened = new EventEmitter<void>();
-  @Output() onClosed = new EventEmitter<void>();
-
   @Output() collapseClick = new EventEmitter<string>();
   @Output() zoomClick = new EventEmitter<void>();
   @Output() closeClick = new EventEmitter<string>();
@@ -42,7 +39,8 @@ export class WindowComponent implements OnInit, OnChanges {
   get hostClass(): string {
     return (
       `${this.isCssMoving ? 'moving ' : ''}` +
-      `${this.isCollapse ? 'collapse ' : ''}`
+      `${this.isCollapse ? 'collapse ' : ''}` +
+      `${this.windowData.isFocus ? 'focus ' : ''}`
     );
   }
 
@@ -80,7 +78,7 @@ export class WindowComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     if (this.isCollapse) {
-      this.innerStyle(this.windowData.closeRect);
+      this.innerStyle(this.windowData.closeRect, 0);
     } else {
       this.innerStyle(this.windowData.openRect);
     }
@@ -128,14 +126,6 @@ export class WindowComponent implements OnInit, OnChanges {
     this.isSizeControlDown = true;
     this.sizeControlType = sizeControlType;
     this.saveMouseDate(event);
-  }
-
-  close(): void {
-    this.onClosed.emit();
-  }
-
-  open(): void {
-    this.onOpened.emit();
   }
 
   private saveMouseDate(event: MouseEvent): void {

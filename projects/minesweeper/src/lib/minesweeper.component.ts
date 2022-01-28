@@ -125,7 +125,7 @@ export class MinesweeperComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   itemClick(x: number, y: number, event: MouseEvent | PointerEvent): void {
-    event.stopPropagation();
+    // event.stopPropagation();
     event.preventDefault();
     // console.log('itemClick', event.button);
     if (this.isDone || this.isDead) {

@@ -1,0 +1,22 @@
+
+
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  margin-bottom: 30px;
+  cursor: pointer;
+  .icon {
+    width: 70px;
+    height: 70px;
+    background-color: #f24;
+    margin-bottom: 12px;
+  }
+  .name {
+    text-align: center;
+    font-size: 12px;
+    word-break: break-word;
+  }
+}

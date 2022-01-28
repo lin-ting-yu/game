@@ -8,6 +8,7 @@ import { AngularSvgIconModule } from 'angular-svg-icon';
 import { HttpClientModule } from '@angular/common/http';
 import { BarItemComponent } from './task-bar/bar-item/bar-item.component';
 import { MinesweeperModule } from 'projects/minesweeper/src/public-api';
+import { DesktopItemComponent } from './desktop-item/desktop-item.component';
 
 
 
@@ -16,7 +17,8 @@ import { MinesweeperModule } from 'projects/minesweeper/src/public-api';
     WindowComponent,
     TaskBarComponent,
     DesktopComponent,
-    BarItemComponent
+    BarItemComponent,
+    DesktopItemComponent
   ],
   imports: [
     CommonModule,

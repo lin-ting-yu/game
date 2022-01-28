@@ -24,41 +24,41 @@ export class DesktopComponent implements OnInit {
   }
 
   windowList: WindowData[] = [
-    {
-      id: 'o23c03fmwpeofjwpeok',
-      name: 'Minesweeper',
-      icon: '',
-      openRect: {
-        width: 256,
-        height: 340,
-        x: 100,
-        y: 100,
-      },
-      closeRect: {
-        width: 0,
-        height: 0,
-        x: 0,
-        y: 0,
-      },
-      minWidth: 200,
-      minHeight: 200,
-      isWidthFull: false,
-      isHeightFull: false,
-      zIndex: 0,
-      isCollapse: false,
-      isFocus: true,
-      isShowSelect: false,
-      isCollapseDisabled: true,
-      isZoomDisabled: false,
-      isCloseDisabled: true,
-      isCanControlSize: false,
-      content: {
-        component: MinesweeperComponent,
-        inputs: {
-          level: MinesweeperLevel.Easy
-        }
-      }
-    }
+    // {
+    //   id: 'o23c03fmwpeofjwpeok',
+    //   name: 'Minesweeper',
+    //   icon: '',
+    //   openRect: {
+    //     width: 256,
+    //     height: 340,
+    //     x: 100,
+    //     y: 100,
+    //   },
+    //   closeRect: {
+    //     width: 0,
+    //     height: 0,
+    //     x: 0,
+    //     y: 0,
+    //   },
+    //   minWidth: 200,
+    //   minHeight: 200,
+    //   isWidthFull: false,
+    //   isHeightFull: false,
+    //   zIndex: 0,
+    //   isCollapse: false,
+    //   isFocus: true,
+    //   isShowSelect: false,
+    //   isCollapseDisabled: true,
+    //   isZoomDisabled: false,
+    //   isCloseDisabled: true,
+    //   isCanControlSize: false,
+    //   content: {
+    //     component: MinesweeperComponent,
+    //     inputs: {
+    //       level: MinesweeperLevel.Easy
+    //     }
+    //   }
+    // }
   ];
 
   barItemList: BarItem[] = [];
@@ -95,6 +95,7 @@ export class DesktopComponent implements OnInit {
       };
 
       windowData.isCollapse = false;
+      this.toTop(windowData.id);
     }
   }
 
@@ -182,7 +183,39 @@ export class DesktopComponent implements OnInit {
       innerWindowRect.height = windowData.minHeight;
     }
     windowData.openRect = innerWindowRect;
+    this.toTop(windowData.id);
   }
+
+  createMinesweeper(rect: DOMRect): void {
+    const minesweeper = this.desktopRectService.createMinesweeper();
+    const parentRect = this.desktopRectService.getRect();
+    minesweeper.isCollapse = true;
+    minesweeper.closeRect = rect;
+    minesweeper.openRect.x =  (parentRect.width - minesweeper.openRect.width) / 2;
+    minesweeper.openRect.y =  (parentRect.height - minesweeper.openRect.height) / 2;
+    this.windowList.push(minesweeper);
+    this.barItemList.push({
+      id: minesweeper.id,
+      icon: minesweeper.icon,
+      name: minesweeper.name
+    })
+    setTimeout(() => {
+      minesweeper.isCollapse = false;
+      this.toTop(minesweeper.id, false);
+    }, 0);
+  }
+
+  toTop(id: string, check = true): void {
+    if (this.windowList[this.windowList.length - 1].id === id && check) {
+      return;
+    }
+    const index = this.windowList.findIndex(item => item.id === id);
+    this.windowList.forEach(item => {item.isFocus = false})
+    this.windowList[index].isFocus = true;
+    const windowData = this.windowList.splice(index, 1);
+    this.windowList.push(windowData[0]);
+  }
+
 
   private setDOM(): void {
     this.desktopRectService.setDOM((this.el.nativeElement as HTMLElement));
@@ -191,5 +224,7 @@ export class DesktopComponent implements OnInit {
   private checkWindowRect(): void {
 
   }
+
+
 
 }
