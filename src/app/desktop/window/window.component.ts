@@ -1,4 +1,4 @@
-import { Component, ComponentRef, ElementRef, EventEmitter, HostBinding, HostListener, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, ComponentRef, ElementRef, EventEmitter, HostBinding, HostListener, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef, ChangeDetectorRef } from '@angular/core';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { Position } from 'projects/minesweeper/src/public-api';
 import { SizeControlType, UpdateOpenRect, DOMRect, WindowData, ContentData } from '../shared/interface';
@@ -13,6 +13,7 @@ export class WindowComponent implements OnInit, OnChanges {
   constructor(
     private el: ElementRef,
     private sanitizer: DomSanitizer,
+    private cdRef: ChangeDetectorRef
   ) { }
 
   @ViewChild('bodyContent', { read: ViewContainerRef }) bodyContent: ViewContainerRef;
@@ -241,14 +242,17 @@ export class WindowComponent implements OnInit, OnChanges {
 
     setTimeout(() => {
       this.innerStyle(this.calcCloseRect(this.windowData.closeRect), 0);
+      this.cdRef.markForCheck();
     }, 0);
   }
   private openWindow(): void {
     this.innerStyle(this.calcCloseRect(this.windowData.closeRect), 0);
     setTimeout(() => {
       this.isCssMoving = true;
+      this.cdRef.markForCheck();
       setTimeout(() => {
-        this.innerStyle(this.windowData.openRect);
+        this.innerStyle(this.openRect);
+        this.cdRef.markForCheck();
       }, 0);
     }, 0);
   }

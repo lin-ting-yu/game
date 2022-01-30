@@ -11,13 +11,13 @@ import { MinesweeperModule } from 'projects/minesweeper/src/public-api';
 import { DesktopItemComponent } from './desktop-item/desktop-item.component';
 import { ToolListComponent } from './task-bar/tool-list/tool-list.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-// import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
-// import { PERFECT_SCROLLBAR_CONFIG } from 'ngx-perfect-scrollbar';
-// import { PerfectScrollbarConfigInterface } from 'ngx-perfect-scrollbar';
+import { PerfectScrollbarModule } from 'ngx-perfect-scrollbar';
+import { PERFECT_SCROLLBAR_CONFIG } from 'ngx-perfect-scrollbar';
+import { PerfectScrollbarConfigInterface } from 'ngx-perfect-scrollbar';
 
-// const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
-//   suppressScrollX: true
-// };
+const DEFAULT_PERFECT_SCROLLBAR_CONFIG: PerfectScrollbarConfigInterface = {
+  suppressScrollX: true
+};
 
 @NgModule({
   declarations: [
@@ -35,18 +35,18 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
     BrowserAnimationsModule,
     MinesweeperModule,
     AngularSvgIconModule.forRoot(),
-    // PerfectScrollbarModule,
+    PerfectScrollbarModule,
   ],
   exports: [
     WindowComponent,
     TaskBarComponent,
     DesktopComponent,
   ],
-  // providers: [
-  //   {
-  //     provide: PERFECT_SCROLLBAR_CONFIG,
-  //     useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG
-  //   }
-  // ]
+  providers: [
+    {
+      provide: PERFECT_SCROLLBAR_CONFIG,
+      useValue: DEFAULT_PERFECT_SCROLLBAR_CONFIG
+    }
+  ]
 })
 export class DesktopModule { }

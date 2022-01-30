@@ -1,4 +1,5 @@
-import { Component, Input, OnInit, ViewChildren, QueryList, ElementRef, ViewChild, HostListener, Output, EventEmitter, HostBinding } from '@angular/core';
+import { PerfectScrollbarComponent } from 'ngx-perfect-scrollbar';
+import { Component, Input, OnInit, ViewChildren, QueryList, ElementRef, ViewChild, HostListener, Output, EventEmitter, HostBinding, ChangeDetectorRef } from '@angular/core';
 import { showToolList } from '../../shared/animate';
 import { ToolData } from '../../shared/interface';
 
@@ -10,12 +11,14 @@ import { ToolData } from '../../shared/interface';
 })
 export class ToolListComponent implements OnInit {
 
-  constructor() { }
+  constructor(
+    private cdRef: ChangeDetectorRef
+  ) { }
 
   @ViewChildren('toolGroup') toolGroupEleList: QueryList<ElementRef>;
   @ViewChildren('dot') dotList: QueryList<ElementRef>;
-  @ViewChild('dotScrollContainer') dotScrollContainer: ElementRef;
-  @ViewChild('toolScrollContainer') toolScrollContainer: ElementRef;
+  @ViewChild('dotScrollContainer') dotScrollContainer: PerfectScrollbarComponent;
+  @ViewChild('toolScrollContainer') toolScrollContainer: PerfectScrollbarComponent;
 
   @Input() readonly toolList: ToolData[];
   @Output() putClose = new EventEmitter();
@@ -23,6 +26,8 @@ export class ToolListComponent implements OnInit {
   @HostBinding('@showToolList')
   @HostListener('@showToolList.done') animatieDone() {
     this.isShown = true;
+    this.dotScrollContainer.directiveRef?.update();
+    this.toolScrollContainer.directiveRef?.update();
   }
   @HostListener('window:click') windowClick() {
     if (!this.isShown) {
@@ -59,9 +64,8 @@ export class ToolListComponent implements OnInit {
   }
   updateFocus(): void {
     const groupEleList = this.toolGroupEleList.toArray();
-    const toolScrollDOM = this.toolScrollContainer.nativeElement as HTMLElement;
+    const toolScrollDOM = this.toolScrollContainer.directiveRef?.elementRef.nativeElement as HTMLElement;
     const scrollTop = toolScrollDOM.scrollTop;
-
     const index = groupEleList.findIndex((ele: ElementRef) => {
       const DOM = ele.nativeElement as HTMLElement;
       const rect = DOM.getBoundingClientRect();
@@ -69,6 +73,7 @@ export class ToolListComponent implements OnInit {
     });
     this.setFocus(index);
     this.setSubFocus(index);
+    this.cdRef.detectChanges();
   }
 
   scrollTo(index: number): void {
@@ -76,11 +81,8 @@ export class ToolListComponent implements OnInit {
       return;
     }
     const eleList = this.toolGroupEleList.toArray();
-    eleList[index].nativeElement.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-      inline: "end",
-    });
+    const groupDOM = eleList[index].nativeElement as HTMLElement;
+    this.toolScrollContainer.directiveRef?.scrollToY(groupDOM.offsetTop, 500);
   }
 
   setSubHoverIndexList(index: number): void {
@@ -88,9 +90,20 @@ export class ToolListComponent implements OnInit {
     this.subHoverIndexList[index + 1] = true;
   }
 
+  itemClick(itemDOM: HTMLElement, toolData: ToolData): void {
+    const rect = itemDOM.getBoundingClientRect();
+    toolData.onClick({
+      x: rect.x,
+      y: rect.y,
+      width: rect.width,
+      height: rect.height
+    });
+    this.putClose.emit();
+  }
+
   private setFocus(focusIndex: number): void {
     this.focusIndexList = [];
-    const toolScrollDOM = this.toolScrollContainer.nativeElement as HTMLElement;
+    const toolScrollDOM = this.toolScrollContainer.directiveRef?.elementRef.nativeElement as HTMLElement;
     const toolScrollTop = toolScrollDOM.scrollTop;
     const toolScrollHeight = toolScrollDOM.scrollHeight;
 
@@ -112,7 +125,7 @@ export class ToolListComponent implements OnInit {
 
   private scrollToShowDot(focusIndex: number): void {
     const dotEleList = this.dotList.toArray();
-    const dotScrollDOM = this.dotScrollContainer.nativeElement as HTMLElement;
+    const dotScrollDOM = this.dotScrollContainer.directiveRef?.elementRef.nativeElement as HTMLElement;
     const dotScrollTop = dotScrollDOM.scrollTop;
 
     const dotDOM = dotEleList[focusIndex].nativeElement as HTMLElement;
@@ -120,11 +133,7 @@ export class ToolListComponent implements OnInit {
       dotDOM.offsetTop < dotScrollTop ||
       (dotScrollTop + dotScrollDOM.offsetHeight) - (dotDOM.offsetHeight + dotDOM.offsetTop) < 0
     ) {
-      dotDOM.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-        inline: "end",
-      });
+      this.dotScrollContainer.directiveRef?.scrollToY(dotDOM.offsetTop, 500);
     }
   }
 

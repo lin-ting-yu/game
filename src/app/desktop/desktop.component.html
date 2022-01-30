@@ -5,8 +5,8 @@
 <div class="container">
   <div class="dasktop-item-container">
     <app-desktop-item
-      [icon]="ToolData[WindowType.Minesweeper].icon.default"
-      [name]="ToolData[WindowType.Minesweeper].name"
+      [icon]="ToolBaseInfoData[WindowType.Minesweeper].icon.default"
+      [name]="ToolBaseInfoData[WindowType.Minesweeper].name"
       (click)="allWindowBlur()"
       (onDblclick)="createMinesweeper($event)"
     ></app-desktop-item>
