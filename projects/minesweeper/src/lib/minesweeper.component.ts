@@ -3,6 +3,7 @@ import {
   ChangeDetectorRef,
   Component,
   EventEmitter,
+  HostListener,
   Input,
   OnChanges,
   OnDestroy,
@@ -37,7 +38,7 @@ const minesweeperLevelData = {
   },
 };
 
-const mouseupIntervalTime = 30
+const mouseupIntervalTime = 30;
 
 @Component({
   selector: 'app-minesweeper',
@@ -51,27 +52,32 @@ export class MinesweeperComponent implements OnInit, OnChanges, OnDestroy {
   ) { }
 
   @Input() readonly level: MinesweeperLevel = MinesweeperLevel.Easy;
-  @Input() readonly isCollaspe = false;
 
-  @Input() readonly isShowSelect = true;
-  @Input() readonly isShowClose = true;
-  @Input() readonly isShowCollapse = true;
+  // @Input() readonly isDisabledSelect = true;
+  // @Input() readonly isShowClose = true;
+  // @Input() readonly isShowCollapse = true;
 
-  @Output() onSelectChange = new EventEmitter<MinesweeperLevel>();
-  @Output() onCloseClick = new EventEmitter<void>();
-  @Output() onCollaspe = new EventEmitter<boolean>();
+  // @Output() onSelectChange = new EventEmitter<MinesweeperLevel>();
+  // @Output() onCloseClick = new EventEmitter<void>();
+  // @Output() onCollaspe = new EventEmitter<boolean>();
 
 
-  readonly options = Object.keys(MinesweeperLevel).map(key => ({
-    value: key ,
-    text: MinesweeperLevel[key as any as MinesweeperLevel]
-  }));
+  // readonly options = Object.keys(MinesweeperLevel).map(key => ({
+  //   value: key,
+  //   text: MinesweeperLevel[key as any as MinesweeperLevel]
+  // }));
+
+  @HostListener('document:mouseup') windowMouseup() {
+    this.isLeftDown = false;
+    this.isRightDown = false;
+    this.rightDownIndex = -1;
+  }
 
   private _innerLevel: MinesweeperLevel;
   set innerLevel(innerLevel) {
     if (this._innerLevel !== innerLevel) {
       this._innerLevel = innerLevel;
-      this.onSelectChange.emit(innerLevel);
+      // this.onSelectChange.emit(innerLevel);
       this.init();
     }
   }
@@ -114,10 +120,11 @@ export class MinesweeperComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-      if (changes['level']) {
-        this.innerLevel = this.level || MinesweeperLevel.Easy;
-        this.init();
-      }
+
+    if (changes['level']) {
+      this.innerLevel = this.level || MinesweeperLevel.Easy;
+      this.init();
+    }
   }
 
   ngOnDestroy(): void {
@@ -127,7 +134,6 @@ export class MinesweeperComponent implements OnInit, OnChanges, OnDestroy {
   itemClick(x: number, y: number, event: MouseEvent | PointerEvent): void {
     // event.stopPropagation();
     event.preventDefault();
-    // console.log('itemClick', event.button);
     if (this.isDone || this.isDead) {
       return;
     }
@@ -151,7 +157,6 @@ export class MinesweeperComponent implements OnInit, OnChanges, OnDestroy {
   mousedown(x: number, y: number, event: MouseEvent | PointerEvent): void {
     switch (event.button) {
       case 0:
-        // this.leftDownIndex = this.xyToI(x, y);
         this.isLeftDown = true;
         return;
       case 2:
@@ -246,6 +251,7 @@ export class MinesweeperComponent implements OnInit, OnChanges, OnDestroy {
     this.time = 0;
     this.setMinesweeper();
     clearInterval(this.interval);
+    this.cdRef.markForCheck();
   }
 
   private setMinesweeper(x?: number, y?: number): void {
@@ -271,6 +277,7 @@ export class MinesweeperComponent implements OnInit, OnChanges, OnDestroy {
       return;
     }
     clearInterval(this.interval);
+    this.time = Math.min(this.time + 1, 999);
     this.interval = setInterval(() => {
       if (this.isDead || this.isDone) {
         clearInterval(this.interval);

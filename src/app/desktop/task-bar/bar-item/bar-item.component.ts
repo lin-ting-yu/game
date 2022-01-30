@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { BarItem, BarItemClickData, DOMRect } from '../../shared';
+import { BarItem, BarItemClickData, DOMRect } from './../../shared/interface';
 
 @Component({
   selector: 'app-bar-item',
@@ -16,6 +16,7 @@ export class BarItemComponent implements OnInit {
   @Input() readonly id: string;
   @Input() readonly icon: string;
   @Input() readonly name: string;
+  @Input() readonly isFocus: boolean;
   @Output() onItemClick = new EventEmitter<BarItemClickData>();
 
   ngOnInit(): void {

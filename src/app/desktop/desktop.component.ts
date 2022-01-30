@@ -1,74 +1,55 @@
+import { environment } from './../../environments/environment.prod';
 import { Component, ElementRef, HostListener, OnInit, QueryList, ViewChildren } from '@angular/core';
 import { MinesweeperComponent, MinesweeperLevel } from 'projects/minesweeper/src/public-api';
-import { Observable } from 'rxjs';
-import { BarItem, UpdateOpenRect, WindowData, DOMRect, BarItemClickData, SizeControlType } from './shared';
-import { DesktopRectService } from './shared/service/desktop-rect.service';
+import { BarItem, UpdateOpenRect, WindowData, DOMRect, BarItemClickData, SizeControlType, WindowType, ToolData } from './shared/interface/interface';
+import { DesktopService } from './shared/service';
 import { BarItemComponent } from './task-bar/bar-item/bar-item.component';
 
 @Component({
   selector: 'app-desktop',
   templateUrl: './desktop.component.html',
   styleUrls: ['./desktop.component.scss'],
-  providers: [DesktopRectService]
+  providers: [DesktopService]
 })
 export class DesktopComponent implements OnInit {
 
   constructor(
     private el: ElementRef,
-    private desktopRectService: DesktopRectService
+    private desktopService: DesktopService
   ) { }
 
   @ViewChildren(BarItemComponent) barItemComponentList: QueryList<BarItemComponent>;
   @HostListener('window:resize', ['$event.target']) hostResise(event: any) {
-    this.checkWindowRect();
+    // TODO:
+  }
+  @HostListener('contextmenu') contextmenu(): boolean {
+    return this.production;
   }
 
-  windowList: WindowData[] = [
-    // {
-    //   id: 'o23c03fmwpeofjwpeok',
-    //   name: 'Minesweeper',
-    //   icon: '',
-    //   openRect: {
-    //     width: 256,
-    //     height: 340,
-    //     x: 100,
-    //     y: 100,
-    //   },
-    //   closeRect: {
-    //     width: 0,
-    //     height: 0,
-    //     x: 0,
-    //     y: 0,
-    //   },
-    //   minWidth: 200,
-    //   minHeight: 200,
-    //   isWidthFull: false,
-    //   isHeightFull: false,
-    //   zIndex: 0,
-    //   isCollapse: false,
-    //   isFocus: true,
-    //   isShowSelect: false,
-    //   isCollapseDisabled: true,
-    //   isZoomDisabled: false,
-    //   isCloseDisabled: true,
-    //   isCanControlSize: false,
-    //   content: {
-    //     component: MinesweeperComponent,
-    //     inputs: {
-    //       level: MinesweeperLevel.Easy
-    //     }
-    //   }
-    // }
-  ];
+  readonly production = environment.production;
+  readonly WindowType = WindowType;
+  readonly ToolData = DesktopService.ToolData;
 
+  readonly toolList: ToolData[] = [];
+
+  windowList: WindowData[] = [];
   barItemList: BarItem[] = [];
 
+  // isBlur = false;
+
+
   ngOnInit(): void {
-    this.barItemList = this.windowList.map(win => ({
-      id: win.id,
-      icon: win.icon,
-      name: win.name
-    }));
+    'aasqbcdgefghijkvkqlmdnopgrystukvwexcyz'.toLocaleUpperCase().split('').forEach(en => {
+      this.toolList.push({
+        type: WindowType.Minesweeper,
+        name: `${en.repeat(~~(Math.random() * 10) + 1)}-${~~(Math.random() * 100000)}`,
+        icon: {
+          default: '/assets/image/icon/desktop/minesweeper.svg',
+          min: '/assets/image/icon/desktop/minesweeper-min.svg'
+        },
+        onClick: () => { }
+      })
+    })
   }
   ngAfterViewInit(): void {
     this.setDOM();
@@ -84,20 +65,6 @@ export class DesktopComponent implements OnInit {
       windowData.isCollapse = true;
     }
   }
-  itemClick(event: BarItemClickData): void {
-    const windowData = this.windowList.find(w => w.id === event.id);
-    if (windowData) {
-      windowData.closeRect = {
-        x: event.x,
-        y: event.y,
-        width: event.width,
-        height: event.height,
-      };
-
-      windowData.isCollapse = false;
-      this.toTop(windowData.id);
-    }
-  }
 
   closeWindow(id: string): void {
     const barItemIndex = this.barItemComponentList.toArray().findIndex(cpt => cpt.id === id);
@@ -111,12 +78,10 @@ export class DesktopComponent implements OnInit {
     }
   }
 
-
-
   updateOpenRect(windowData: WindowData, updateOpenRect: UpdateOpenRect): void {
     const innerWindowRect = { ...updateOpenRect.rect };
-    const rect = this.desktopRectService.getRect();
-    const maxHeight = rect.height - DesktopRectService.taskBarHeight;
+    const rect = this.desktopService.getRect();
+    const maxHeight = rect.height - DesktopService.TaskBarHeight;
 
     windowData.isWidthFull = false;
     windowData.isHeightFull = false;
@@ -153,7 +118,7 @@ export class DesktopComponent implements OnInit {
 
 
     // 判斷下出界
-    if (innerWindowRect.y + innerWindowRect.height + DesktopRectService.taskBarHeight > rect.height) {
+    if (innerWindowRect.y + innerWindowRect.height + DesktopService.TaskBarHeight > rect.height) {
       if (updateOpenRect.type === 'resize') {
         innerWindowRect.height = maxHeight - innerWindowRect.y;
       } else {
@@ -186,45 +151,79 @@ export class DesktopComponent implements OnInit {
     this.toTop(windowData.id);
   }
 
+  updateSelect(windowData: WindowData, value: string): void {
+    if (windowData.type === WindowType.Minesweeper) {
+      const innerValue = value as MinesweeperLevel;
+      if (windowData.content) {
+        windowData.content = {
+          component: MinesweeperComponent,
+          inputs: {
+            level: value
+          }
+        };
+        windowData.openRect = {
+          ...windowData.openRect,
+          ...DesktopService.MinesweeperSize[innerValue]
+        };
+      }
+
+    }
+  }
+
+  itemClick(event: BarItemClickData): void {
+    const windowData = this.windowList.find(w => w.id === event.id);
+    if (windowData) {
+      windowData.closeRect = {
+        x: event.x,
+        y: event.y,
+        width: event.width,
+        height: event.height,
+      };
+
+      windowData.isCollapse = false;
+      this.toTop(windowData.id);
+    }
+  }
+
+  toTop(id: string, check = true): void {
+    const lastIndex = this.windowList.length - 1;
+    if (this.windowList[lastIndex].id === id && check) {
+      this.windowList[lastIndex].isFocus = true;
+      return;
+    }
+    const index = this.windowList.findIndex(item => item.id === id);
+    this.windowList.forEach(item => { item.isFocus = false; });
+    this.windowList[index].isFocus = true;
+    const windowData = this.windowList.splice(index, 1);
+    this.windowList.push(windowData[0]);
+  }
+
+  allWindowBlur(): void {
+    this.windowList.forEach(item => item.isFocus = false);
+  }
+
   createMinesweeper(rect: DOMRect): void {
-    const minesweeper = this.desktopRectService.createMinesweeper();
-    const parentRect = this.desktopRectService.getRect();
+    const minesweeper = this.desktopService.createMinesweeper();
+    const parentRect = this.desktopService.getRect();
     minesweeper.isCollapse = true;
     minesweeper.closeRect = rect;
-    minesweeper.openRect.x =  (parentRect.width - minesweeper.openRect.width) / 2;
-    minesweeper.openRect.y =  (parentRect.height - minesweeper.openRect.height) / 2;
+    minesweeper.openRect.x = (parentRect.width - minesweeper.openRect.width) / 2;
+    minesweeper.openRect.y = (parentRect.height - minesweeper.openRect.height) / 2;
     this.windowList.push(minesweeper);
     this.barItemList.push({
       id: minesweeper.id,
-      icon: minesweeper.icon,
+      icon: minesweeper.icon.min,
       name: minesweeper.name
-    })
+    });
     setTimeout(() => {
       minesweeper.isCollapse = false;
       this.toTop(minesweeper.id, false);
     }, 0);
   }
 
-  toTop(id: string, check = true): void {
-    if (this.windowList[this.windowList.length - 1].id === id && check) {
-      return;
-    }
-    const index = this.windowList.findIndex(item => item.id === id);
-    this.windowList.forEach(item => {item.isFocus = false})
-    this.windowList[index].isFocus = true;
-    const windowData = this.windowList.splice(index, 1);
-    this.windowList.push(windowData[0]);
-  }
-
 
   private setDOM(): void {
-    this.desktopRectService.setDOM((this.el.nativeElement as HTMLElement));
+    this.desktopService.setDOM((this.el.nativeElement as HTMLElement));
   }
-
-  private checkWindowRect(): void {
-
-  }
-
-
 
 }

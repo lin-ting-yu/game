@@ -3,37 +3,49 @@
   (mousedown)="headerDown($event)"
 >
   <div
-    *ngIf="windowData.isShowSelect"
+    *ngIf="!windowData.isDisabledSelect && windowData.select"
     class="select"
+    (mousedown)="$event.stopPropagation(); isItemDown = true;"
   >
-    <!-- <div class="select-text">{{ innerLevel }}</div> -->
+    <div class="select-text">{{ selectText }}</div>
     <div class="select-icon">
       <svg-icon src="/assets/image/icon/header-arrow.svg"></svg-icon>
     </div>
-    <!-- <select [(ngModel)]="innerLevel">
-            <ng-container *ngFor="let data of options">
-                <option [value]="data.value">{{ data.text }}</option>
-            </ng-container>
-        </select> -->
+    <select
+      [(ngModel)]="windowData.select.value"
+      (change)="updateSelect()"
+    >
+      <ng-container *ngFor="let option of windowData.select.options">
+        <option [value]="option.value">{{ option.text }}</option>
+      </ng-container>
+    </select>
+    <!-- <select>
+      <option value="Easy">Easy</option>
+      <option value="Normal">Normal</option>
+      <option value="Hard">Hard</option>
+    </select> -->
   </div>
   <div
-    *ngIf="windowData.isCollapseDisabled"
+    *ngIf="windowData.isDisabledCollapse"
     class="icon"
-    (click)="collapseClick.emit(windowData.id)"
+    (mousedown)="isItemDown = true"
+    (click)="onClickCollapse.emit(windowData.id);"
   >
     <svg-icon src="/assets/image/icon/header-collapse.svg"></svg-icon>
   </div>
   <div
-    *ngIf="windowData.isZoomDisabled"
+    *ngIf="windowData.isDisabledZoom"
     class="icon"
-    (click)="zoomClick.emit(windowData.id)"
+    (mousedown)="isItemDown = true"
+    (click)="onClickZoom.emit(windowData.id);"
   >
     <svg-icon src="/assets/image/icon/header-zoom.svg"></svg-icon>
   </div>
   <div
-    *ngIf="windowData.isCloseDisabled"
+    *ngIf="windowData.isDisabledClose"
     class="icon"
-    (click)="closeClick.emit(windowData.id)"
+    (mousedown)="isItemDown = true"
+    (click)="onClickClose.emit(windowData.id)"
   >
     <svg-icon src="/assets/image/icon/header-cross.svg"></svg-icon>
   </div>
@@ -42,7 +54,7 @@
   <ng-template #bodyContent></ng-template>
 </div>
 
-<ng-container *ngIf="windowData.isCanControlSize">
+<ng-container *ngIf="!windowData.isDisabledControlSize">
   <div
     class="size-control top"
     (mousedown)="sizeControlDown(SizeControlType.Top, $event)"

@@ -1,0 +1,141 @@
+@import "./../../../../../scss/export.scss";
+
+:host {
+  width: grid(80);
+  height: grid(125);
+  background-color: $color-6;
+  border-top-right-radius: 5px;
+  border-width: 2px 2px 0 0;
+  border-color: $color-0;
+  border-style: solid;
+  font-size: 12px;
+  position: absolute;
+  bottom: grid(10);
+  z-index: 3;
+  transform-origin: bottom left;
+  overflow: hidden;
+}
+.tool-container {
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+.nav-dot-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: grid(10);
+  height: 100%;
+  padding-top: grid(9);
+  padding-bottom: grid(6);
+  border-right: solid 2px $color-0;
+  background-color: $color-4;
+  overflow: hidden;
+  @include scroll-bar();
+  .scroll-container {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    position: relative;
+  }
+  .dot-hover {
+    &,
+    .dot {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      height: grid(4);
+      margin-bottom: 1px;
+      line-height: 0;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    &:hover {
+      .dot,
+      .dot.sub-focus {
+        transform: scale(0.9);
+        .text {
+          color: $color-6;
+        }
+      }
+    }
+    .dot {
+      // margin: grid(1.5) 0;
+      width: grid(4);
+      background-color: $color-0;
+      transform: scale(0.3);
+      transition: 0.3s;
+      &.sub-focus {
+        transform: scale(0.6);
+        .text {
+          color: $color-6;
+        }
+      }
+      &:hover,
+      &.focus {
+        transform: scale(0.9);
+        .text {
+          color: $color-6;
+        }
+      }
+      .text {
+        display: inline-block;
+        color: transparent;
+        transform: scale(0.83333);
+      }
+    }
+  }
+}
+.tool-item-list {
+  flex: 1;
+  margin-top: grid(3);
+
+  @include scroll-bar();
+  .scroll-container {
+    width: 100%;
+    height: 100%;
+    padding-top: grid(6);
+    padding-bottom: grid(6);
+    position: relative;
+    overflow: auto;
+  }
+  .tool-group {
+    margin-bottom: grid(10);
+    .group-title {
+      padding-left: grid(4);
+      margin-bottom: grid(4);
+      font-size: grid(6);
+    }
+    .tool-item {
+      display: flex;
+      align-items: center;
+      font-size: grid(3);
+      padding: grid(3) grid(4);
+      cursor: pointer;
+      &:hover {
+        background-color: $color-5;
+      }
+      &:active {
+        background-color: $color-4;
+      }
+      .icon {
+        flex-shrink: 0;
+        width: grid(6);
+        height: grid(6);
+        margin-right: grid(2);
+        img {
+          width: 100%;
+          height: 100%;
+        }
+      }
+      .title {
+        flex: 1;
+        width: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+  }
+}

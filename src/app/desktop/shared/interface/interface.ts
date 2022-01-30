@@ -12,27 +12,41 @@ export interface ContentData {
   component: Type<unknown>;
   inputs?: {
     [key: string]: any;
-  }
+  };
 }
-export interface WindowData {
-  id: string;
+export enum WindowType {
+  Minesweeper = 'minesweeper'
+}
+
+export interface ToolBaseInfo {
+  type: WindowType;
   name: string;
-  icon: string
+  icon: {
+    default: string;
+    min?: string;
+  };
+}
+
+export interface WindowData extends ToolBaseInfo {
+  id: string;
   openRect: DOMRect;
   closeRect: DOMRect;
   isWidthFull: boolean;
   isHeightFull: boolean;
   minWidth: number;
   minHeight: number;
-  zIndex: number;
-  isShowSelect: boolean;
-  isCollapse: boolean;
   isFocus: boolean;
-  isCollapseDisabled: boolean;
-  isZoomDisabled: boolean;
-  isCloseDisabled: boolean;
-  isCanControlSize: boolean;
-  content?: ContentData
+  isCollapse: boolean;
+  isDisabledSelect: boolean;
+  isDisabledCollapse: boolean;
+  isDisabledZoom: boolean;
+  isDisabledClose: boolean;
+  isDisabledControlSize: boolean;
+  select?: {
+    options: { value: string; text: string; }[];
+    value: string;
+  };
+  content?: ContentData;
 }
 
 export interface BarItem {
@@ -64,4 +78,8 @@ export interface UpdateOpenRect {
   type: 'move' | 'resize';
   sizeControlType: SizeControlType | null;
   rect: DOMRect;
+}
+
+export interface ToolData extends ToolBaseInfo {
+  onClick: (rect: DOMRect) => void;
 }

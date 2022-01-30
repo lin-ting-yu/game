@@ -1,11 +1,25 @@
-<div class="logo"><svg-icon src="/assets/image/icon/logo.svg"></svg-icon></div>
-<div class="item-container">
-  <ng-content></ng-content>
-</div>
-<div class="info-container">
-  <div class="winther"></div>
-  <div class="time">
-    <div class="now">{{hour}}<span>:</span>{{minute}}</div>
-    <div class="today">{{today}}</div>
+<app-tool-list
+  *ngIf="isOpenToolList"
+  [toolList]="toolList"
+  (putClose)="isOpenToolList = false"
+></app-tool-list>
+<div class="ber-container">
+  <div
+    class="logo"
+    [ngClass]="{
+      active: isOpenToolList
+    }"
+    (click)="isOpenToolList = !isOpenToolList"
+  >
+    <svg-icon src="/assets/image/icon/logo.svg"></svg-icon>
+  </div>
+  <div class="item-container">
+    <ng-content></ng-content>
+  </div>
+  <div class="info-container">
+    <div class="time">
+      <div class="now">{{hour}}<span>:</span>{{minute}}</div>
+      <div class="today">{{today}}</div>
+    </div>
   </div>
 </div>

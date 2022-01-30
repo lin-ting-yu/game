@@ -1,20 +1,24 @@
-import { Component, Input, OnDestroy, OnInit, Output, EventEmitter, ElementRef } from '@angular/core';
-import { BarItem, BarItemClickData } from '../shared';
+import { Component, Input, OnDestroy, OnInit } from '@angular/core';
+import { ToolData } from '../shared/interface';
 import * as dayjs from 'dayjs';
 
 @Component({
   selector: 'app-task-bar',
   templateUrl: './task-bar.component.html',
-  styleUrls: ['./task-bar.component.scss']
+  styleUrls: ['./task-bar.component.scss'],
 })
 export class TaskBarComponent implements OnInit, OnDestroy {
 
   constructor() { }
 
+  @Input() readonly toolList: ToolData[];
+
+
   hour = '';
-  minute = ''
+  minute = '';
   today = '';
 
+  isOpenToolList = false;
 
   private interval: NodeJS.Timer;
 
@@ -22,7 +26,7 @@ export class TaskBarComponent implements OnInit, OnDestroy {
     this.setTime();
     this.interval = setInterval(() => {
       this.setTime();
-    }, 1000)
+    }, 1000);
   }
 
   ngOnDestroy(): void {

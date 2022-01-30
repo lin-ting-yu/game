@@ -1,5 +1,5 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output, ElementRef, ViewChild } from '@angular/core';
-import { DOMRect } from './../shared';
+import { DOMRect } from './../shared/interface';
 
 @Component({
   selector: 'app-desktop-item',
@@ -10,7 +10,7 @@ export class DesktopItemComponent implements OnInit {
 
   constructor() { }
 
-  @ViewChild('icon') iconDOM: ElementRef;
+  @ViewChild('iconDOM') iconDOM: ElementRef;
   @Input() readonly icon: string;
   @Input() readonly name: string;
   @Output() onDblclick = new EventEmitter<DOMRect>();

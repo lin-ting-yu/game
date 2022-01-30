@@ -1,8 +1,7 @@
-import { Component, ComponentFactoryResolver, ComponentRef, ElementRef, EventEmitter, HostBinding, HostListener, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
+import { Component, ComponentRef, ElementRef, EventEmitter, HostBinding, HostListener, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef } from '@angular/core';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
-import * as createjs from 'createjs-module';
 import { Position } from 'projects/minesweeper/src/public-api';
-import { SizeControlType, UpdateOpenRect, DOMRect, ContentData, WindowData } from '../shared';
+import { SizeControlType, UpdateOpenRect, DOMRect, WindowData, ContentData } from '../shared/interface';
 
 @Component({
   selector: 'app-window',
@@ -20,11 +19,13 @@ export class WindowComponent implements OnInit, OnChanges {
   @Input() readonly windowData: WindowData;
   @Input() readonly openRect: DOMRect;
   @Input() readonly isCollapse: boolean;
+  @Input() readonly content: ContentData;
 
-  @Output() collapseClick = new EventEmitter<string>();
-  @Output() zoomClick = new EventEmitter<void>();
-  @Output() closeClick = new EventEmitter<string>();
-  @Output() updateOpenRect = new EventEmitter<UpdateOpenRect>();
+  @Output() onClickCollapse = new EventEmitter<string>();
+  @Output() onClickZoom = new EventEmitter<void>();
+  @Output() onClickClose = new EventEmitter<string>();
+  @Output() onUpdateSelect = new EventEmitter<string>();
+  @Output() onUpdateOpenRect = new EventEmitter<UpdateOpenRect>();
 
   @HostBinding('style')
   get hostStyle(): SafeStyle {
@@ -45,12 +46,16 @@ export class WindowComponent implements OnInit, OnChanges {
   }
 
   @HostListener('document:mousemove', ['$event']) mousemove(event: MouseEvent) {
+    if (this.isItemDown) {
+      return;
+    }
     this.handleMoveChange(event);
     this.handleSizeChange(event);
   }
   @HostListener('document:mouseup', ['$event']) mouseup() {
     this.isHeaderDown = false;
     this.isSizeControlDown = false;
+    this.isItemDown = false;
   }
   @HostListener('transitionend') transitionend() {
     this.isCssMoving = false;
@@ -58,6 +63,7 @@ export class WindowComponent implements OnInit, OnChanges {
 
   readonly SizeControlType = SizeControlType;
 
+  isItemDown = false;
   private isCssMoving = false;
 
   private innerTranslate: string = '';
@@ -76,17 +82,21 @@ export class WindowComponent implements OnInit, OnChanges {
 
   private contentComponent: ComponentRef<unknown>;
 
+  selectText = '';
+
   ngOnInit(): void {
     if (this.isCollapse) {
-      this.innerStyle(this.windowData.closeRect, 0);
+      this.innerStyle(this.calcCloseRect(this.windowData.closeRect), 0);
     } else {
       this.innerStyle(this.windowData.openRect);
     }
+    this.setSelectText();
   }
 
   ngOnChanges(changes: {
     openRect: SimpleChange;
     isCollapse: SimpleChange;
+    content: SimpleChange;
   }): void {
     if (changes.openRect && this.openRect) {
       if (!this.isCollapse) {
@@ -100,6 +110,9 @@ export class WindowComponent implements OnInit, OnChanges {
         this.openWindow();
       }
     }
+    if (changes.content && !changes.content.firstChange) {
+      this.createContent();
+    }
   }
 
   ngOnDestroy(): void {
@@ -109,10 +122,6 @@ export class WindowComponent implements OnInit, OnChanges {
   }
   ngAfterViewInit(): void {
     this.createContent();
-  }
-
-  updateState(): void {
-
   }
 
   headerDown(event: MouseEvent): void {
@@ -126,6 +135,20 @@ export class WindowComponent implements OnInit, OnChanges {
     this.isSizeControlDown = true;
     this.sizeControlType = sizeControlType;
     this.saveMouseDate(event);
+  }
+
+  updateSelect(): void {
+    this.setSelectText();
+    this.onUpdateSelect.emit(this.windowData.select?.value);
+  }
+
+  private setSelectText(): void {
+    if (this.windowData.isDisabledSelect || !this.windowData.select) {
+      return;
+    }
+    this.selectText = this.windowData.select.options.find(
+      option => option.value === this.windowData.select?.value
+    )?.text || '';
   }
 
   private saveMouseDate(event: MouseEvent): void {
@@ -144,7 +167,7 @@ export class WindowComponent implements OnInit, OnChanges {
     if (!this.isHeaderDown) {
       return;
     }
-    this.updateOpenRect.emit({
+    this.onUpdateOpenRect.emit({
       type: 'move',
       sizeControlType: null,
       rect: {
@@ -157,7 +180,7 @@ export class WindowComponent implements OnInit, OnChanges {
   }
 
   private handleSizeChange(event: MouseEvent): void {
-    if (!this.isSizeControlDown || !this.windowData.isCanControlSize) {
+    if (!this.isSizeControlDown || this.windowData.isDisabledControlSize) {
       return;
     }
 
@@ -195,7 +218,7 @@ export class WindowComponent implements OnInit, OnChanges {
       newRect.x += xMove;
       newRect.width -= xMove;
     }
-    this.updateOpenRect.emit({
+    this.onUpdateOpenRect.emit({
       type: 'resize',
       sizeControlType: this.sizeControlType,
       rect: newRect
@@ -203,14 +226,25 @@ export class WindowComponent implements OnInit, OnChanges {
 
   }
 
+  private calcCloseRect(close: DOMRect): DOMRect {
+    return {
+      x: close.x + (
+        close.width - this.windowData.openRect.width
+      ) / 2,
+      y: close.y - this.windowData.openRect.height / 2 + close.height / 2,
+      width: this.windowData.openRect.width,
+      height: this.windowData.openRect.height,
+    };
+  }
   private closeWindow(): void {
     this.isCssMoving = true;
+
     setTimeout(() => {
-      this.innerStyle(this.windowData.closeRect, 0);
+      this.innerStyle(this.calcCloseRect(this.windowData.closeRect), 0);
     }, 0);
   }
   private openWindow(): void {
-    this.innerStyle(this.windowData.closeRect, 0);
+    this.innerStyle(this.calcCloseRect(this.windowData.closeRect), 0);
     setTimeout(() => {
       this.isCssMoving = true;
       setTimeout(() => {
@@ -227,19 +261,16 @@ export class WindowComponent implements OnInit, OnChanges {
       this.contentComponent.destroy();
     }
     this.contentComponent = this.bodyContent.createComponent(this.windowData.content.component);
-    this.updateInput();
-
-  }
-  private updateInput(): void {
     if (!this.windowData.content || !this.contentComponent) {
       return;
     }
     const inputs = this.windowData.content.inputs;
     if (inputs) {
       Object.keys(inputs).forEach(key => {
-        (this.contentComponent as any).instance[key] = inputs[key]
-      })
+        (this.contentComponent as any).instance[key] = inputs[key];
+      });
     }
+
   }
 
 }

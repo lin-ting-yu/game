@@ -1,0 +1,52 @@
+<div class="tool-container">
+  <div class="nav-dot-list">
+    <div
+      #dotScrollContainer
+      class="scroll-container"
+    >
+      <ng-container *ngFor="let key of toolGroupKeyList; let i = index;">
+        <div
+          #dot
+          class="dot-hover"
+          (mouseenter)="setSubHoverIndexList(i)"
+          (mouseleave)="subHoverIndexList = []"
+          (click)="scrollTo(i)"
+        >
+          <div
+            class="dot"
+            [ngClass]="{
+              focus: focusIndexList[i],
+              'sub-focus': subFocusIndexList[i] || subHoverIndexList[i]
+            }"
+          ><span class="text">{{key}}</span></div>
+        </div>
+      </ng-container>
+    </div>
+  </div>
+  <div class="tool-item-list">
+    <div
+      #toolScrollContainer
+      class="scroll-container"
+      (scroll)="updateFocus()"
+    >
+      <ng-container *ngFor="let key of toolGroupKeyList">
+        <div
+          #toolGroup
+          class="tool-group"
+        >
+          <div class="group-title">{{key}}</div>
+          <ng-container *ngFor="let toolData of toolGroupList[key]">
+            <div class="tool-item">
+              <div class="icon"><img
+                  [src]="toolData.icon.min"
+                  alt=""
+                ></div>
+              <div class="title">{{toolData.name}}</div>
+            </div>
+          </ng-container>
+        </div>
+      </ng-container>
+    </div>
+
+  </div>
+</div>

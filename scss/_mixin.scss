@@ -1,0 +1,26 @@
+@import "./variable";
+
+@mixin scroll-bar() {
+  ::-webkit-scrollbar {
+    transition: 0.2s;
+    width: 2px;
+  }
+  ::-webkit-scrollbar-track {
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    background-color: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    -webkit-border-radius: 2px;
+    border-radius: 2px;
+    background-color: $color-2;
+  }
+  &:hover {
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    & > div {
+      margin-right: -4px;
+    }
+  }
+}

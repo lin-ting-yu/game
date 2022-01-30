@@ -1,33 +1,35 @@
 @import "./../../../../../scss/export.scss";
 
-::ng-deep {
-  app-bar-item + app-bar-item {
-    margin-left: -2px;
-  }
-}
-
 :host {
   display: flex;
   height: 100%;
-
 }
 .item {
   display: flex;
   align-items: center;
-  min-width: grid(40);
+  width: grid(47);
   height: 100%;
   padding: 0 grid(3);
   border-color: $color-3;
   border-style: solid;
-  border-width: 0 2px 0 2px;
+  border-width: 0 2px 0 0px;
+  &.focus {
+    background-color: $color-5;
+  }
   cursor: pointer;
   .icon {
-    width: grid(4);
-    height: grid(4);
+    flex-shrink: 0;
+    width: grid(4.5);
+    height: grid(4.5);
     margin-right: grid(2);
-    background-color: #f24;
   }
   .name {
+    flex: 1;
+    width: 0;
     font-size: grid(3);
+    padding-top: 3px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }

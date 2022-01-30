@@ -22,6 +22,7 @@
     "createjs-module": "^0.8.3",
     "day": "^0.0.2",
     "dayjs": "^1.10.7",
+    "ngx-perfect-scrollbar": "^10.1.1",
     "rxjs": "~7.4.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"

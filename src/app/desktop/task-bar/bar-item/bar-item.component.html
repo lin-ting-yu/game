@@ -1,4 +1,12 @@
-<div #itemDOM class="item" (click)="itemClick()">
-  <div class="icon"></div>
+<div
+  #itemDOM
+  class="item"
+  [ngClass]="{ focus: isFocus }"
+  (click)="itemClick()"
+>
+  <div class="icon"><img
+      [src]="icon"
+      alt=""
+    ></div>
   <div class="name">{{name}}</div>
 </div>

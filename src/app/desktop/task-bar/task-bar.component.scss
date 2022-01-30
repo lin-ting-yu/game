@@ -2,14 +2,20 @@
 
 :host {
   display: flex;
-  align-items: center;
   width: 100%;
   height: grid(10);
+}
+.ber-container {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  height: 100%;
   border-top: solid 2px $color-black;
   background-color: $color-6;
   padding: 0 grid(4) 0 0;
-  position: relative;
-  z-index: 99999;
+  position: absolute;
+  bottom: 0;
+  z-index: 100;
 }
 .logo,
 .item-container,
@@ -21,10 +27,15 @@
   flex-shrink: 0;
   display: flex;
   align-items: center;
-  padding: 0 grid(5);
+  padding: 0 grid(5.5) 0 grid(5);
   // background-color: #fff;
+  border-right: solid 2px $color-0;
   cursor: pointer;
   &:hover {
+    background-color: $color-5;
+  }
+  &:active,
+  &.active {
     background-color: $color-4;
   }
   svg {

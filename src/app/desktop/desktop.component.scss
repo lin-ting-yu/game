@@ -1,31 +1,55 @@
-@import './../../../scss/export.scss';
+@import "./../../../scss/export.scss";
 
 :host {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    background-color: $color-f;
-    font-family: "Press Start 2P", cursive;
-    position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: $color-f;
+  font-family: "Press Start 2P", cursive;
+  position: absolute;
+  pointer-events: none;
+  app-desktop-item,
+  app-window,
+  app-task-bar {
+    pointer-events: auto;
+  }
+  overflow: hidden;
+}
+
+.background {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: auto;
+}
+
+.container {
+  flex: 1;
+  height: 0;
+  position: relative;
 }
 
 .dasktop-item-container {
-  display: flex;
+  display: inline-flex;
   flex-direction: column;
   align-items: flex-start;
   flex-wrap: wrap;
   height: 100%;
   padding: 40px;
-}
-.container {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  height: 0;
+  padding-bottom: 0;
+  app-desktop-item {
+    margin-bottom: 40px;
+    margin-right: 30px;
+  }
 }
 
 .bar {
-
+  width: 100%;
+  position: absolute;
+  bottom: 0;
+  transform: translateY(1px);
 }
