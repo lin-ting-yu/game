@@ -13,8 +13,64 @@
   >
     <svg-icon src="/assets/image/icon/logo.svg"></svg-icon>
   </div>
-  <div class="item-container">
-    <ng-content></ng-content>
+  <div
+    #itemContainer
+    class="item-container"
+    [ngClass]="{ over: isOver }"
+  >
+    <ng-container *ngFor="let barItem of barItemList; let i = index">
+      <ng-container *ngIf="i < maxItemLength">
+        <div
+          #barItemDOM
+          class="bar-item"
+          [ngClass]="{ focus: barItem.isFocus }"
+          (click)="itemClick(barItemDOM, i, barItem.id)"
+        >
+          <div class="icon"><img
+              [src]="barItem.icon"
+              alt=""
+            ></div>
+          <div class="name">{{barItem.name}}</div>
+        </div>
+      </ng-container>
+    </ng-container>
+    <div
+      #more
+      *ngIf="isOver"
+      class="more-item"
+      [ngClass]="{
+        'show': isShowMore,
+        'active': isFocusInMore
+      }"
+      (click)="moreClick()"
+      (mouseenter)="moreEnter()"
+      (mouseleave)="moreLeave()"
+    >
+      <div class="dot"></div>
+      <div
+        class="more-container"
+        [ngStyle]="{ 'height': moreContainerHeight}"
+      >
+        <perfect-scrollbar>
+          <ng-container *ngFor="let barItem of barItemList; let i = index">
+            <ng-container *ngIf="i >= maxItemLength">
+              <div
+                #barItemDOM
+                class="bar-item"
+                [ngClass]="{ focus: barItem.isFocus }"
+                (click)="itemClick(barItemDOM, i, barItem.id)"
+              >
+                <div class="icon"><img
+                    [src]="barItem.icon"
+                    alt=""
+                  ></div>
+                <div class="name">{{barItem.name}}</div>
+              </div>
+            </ng-container>
+          </ng-container>
+        </perfect-scrollbar>
+      </div>
+    </div>
   </div>
   <div class="info-container">
     <div class="time">

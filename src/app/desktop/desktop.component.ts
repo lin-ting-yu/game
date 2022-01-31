@@ -1,36 +1,55 @@
 import { environment } from './../../environments/environment.prod';
-import { Component, ElementRef, HostListener, OnInit, QueryList, ViewChildren } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnInit, QueryList, ViewChildren, ChangeDetectorRef, HostBinding } from '@angular/core';
 import { MinesweeperComponent, MinesweeperLevel } from 'projects/minesweeper/src/public-api';
 import { BarItem, UpdateOpenRect, WindowData, DOMRect, BarItemClickData, SizeControlType, WindowType, ToolData } from './shared/interface/interface';
-import { DesktopService } from './shared/service';
+import { DesktopService, RectService } from './shared/service';
 import { BarItemComponent } from './task-bar/bar-item/bar-item.component';
 
 @Component({
   selector: 'app-desktop',
   templateUrl: './desktop.component.html',
   styleUrls: ['./desktop.component.scss'],
-  providers: [DesktopService]
+  providers: [
+    RectService,
+    DesktopService
+  ],
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class DesktopComponent implements OnInit {
 
   constructor(
     private el: ElementRef,
-    private desktopService: DesktopService
-  ) { }
+    private desktopService: DesktopService,
+    private cdRef: ChangeDetectorRef
+  ) {
+    RectService.parentTagName = 'APP-DESKTOP';
+  }
 
   @ViewChildren(BarItemComponent) barItemComponentList: QueryList<BarItemComponent>;
   @HostListener('window:resize', ['$event.target']) hostResise(event: any) {
-    // TODO:
+    const rect = this.desktopService.getRect();
+    if (this.oldWidth !== rect.width || this.oldHeight !== rect.height) {
+      this.oldWidth = rect.width;
+      this.oldHeight = rect.height;
+      this.desktopService.putDesktopResize(rect.width, rect.height);
+    }
   }
   @HostListener('contextmenu') contextmenu(): boolean {
     return this.production;
   }
 
+  private oldWidth: number;
+  private oldHeight: number;
   readonly production = environment.production;
   readonly WindowType = WindowType;
-  readonly ToolData = DesktopService.ToolData;
+  readonly ToolBaseInfoData = DesktopService.ToolBaseInfoData;
 
-  readonly toolList: ToolData[] = [];
+  readonly toolList: ToolData[] = [
+    {
+      ...DesktopService.ToolBaseInfoData[WindowType.Minesweeper],
+      onClick: (rect: DOMRect) => { this.createMinesweeper(rect); }
+    }
+  ];
 
   windowList: WindowData[] = [];
   barItemList: BarItem[] = [];
@@ -39,20 +58,23 @@ export class DesktopComponent implements OnInit {
 
 
   ngOnInit(): void {
-    'aasqbcdgefghijkvkqlmdnopgrystukvwexcyz'.toLocaleUpperCase().split('').forEach(en => {
+    'aasqbcdgefghijkvkqlmdnopgrystukvwexc'.toLocaleUpperCase().split('').forEach(en => {
       this.toolList.push({
         type: WindowType.Minesweeper,
-        name: `${en.repeat(~~(Math.random() * 10) + 1)}-${~~(Math.random() * 100000)}`,
+        name: `${en} Fake Item ${~~(Math.random() * 100000)}`,
         icon: {
           default: '/assets/image/icon/desktop/minesweeper.svg',
           min: '/assets/image/icon/desktop/minesweeper-min.svg'
         },
         onClick: () => { }
-      })
-    })
+      });
+    });
   }
   ngAfterViewInit(): void {
     this.setDOM();
+    const rect = this.desktopService.getRect();
+    this.oldWidth = rect.width;
+    this.oldHeight = rect.height;
   }
 
   collapseWindow(id: string): void {
@@ -187,7 +209,7 @@ export class DesktopComponent implements OnInit {
 
   toTop(id: string, check = true): void {
     const lastIndex = this.windowList.length - 1;
-    if (this.windowList[lastIndex].id === id && check) {
+    if (this.windowList[lastIndex].id === id && check && this.windowList[lastIndex].isFocus) {
       this.windowList[lastIndex].isFocus = true;
       return;
     }
@@ -196,10 +218,13 @@ export class DesktopComponent implements OnInit {
     this.windowList[index].isFocus = true;
     const windowData = this.windowList.splice(index, 1);
     this.windowList.push(windowData[0]);
+    this.cdRef.detectChanges();
+    this.desktopService.putUpdateFoucs(id);
   }
 
   allWindowBlur(): void {
     this.windowList.forEach(item => item.isFocus = false);
+    this.desktopService.putUpdateFoucs('');
   }
 
   createMinesweeper(rect: DOMRect): void {
@@ -218,8 +243,10 @@ export class DesktopComponent implements OnInit {
     setTimeout(() => {
       minesweeper.isCollapse = false;
       this.toTop(minesweeper.id, false);
+      this.cdRef.markForCheck();
     }, 0);
   }
+
 
 
   private setDOM(): void {

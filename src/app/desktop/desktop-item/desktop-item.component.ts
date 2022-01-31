@@ -1,4 +1,5 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output, ElementRef, ViewChild } from '@angular/core';
+import { RectService } from '../shared/service';
 import { DOMRect } from './../shared/interface';
 
 @Component({
@@ -16,13 +17,9 @@ export class DesktopItemComponent implements OnInit {
   @Output() onDblclick = new EventEmitter<DOMRect>();
 
   @HostListener('dblclick') dblclick(): void {
-    const rect = (this.iconDOM.nativeElement as HTMLElement).getBoundingClientRect();
-    this.onDblclick.emit({
-      x: rect.x,
-      y: rect.y,
-      width: rect.width,
-      height: rect.height
-    });
+    this.onDblclick.emit(
+      RectService.getDomRect(this.iconDOM.nativeElement)
+    );
   }
   ngOnInit(): void {
   }

@@ -1,1 +1,20 @@
-<app-desktop></app-desktop>
+<app-desktop [ngClass]="{ broke: isBroke && itDesktop}"></app-desktop>
+
+<div
+  *ngIf="isBroke && itDesktop"
+  class="error-msg"
+>
+  (　ﾟдﾟ) OOPS!<br>
+  YOU BROKE THE DESKTOP.<br>
+  BECAUSE YOUR WINDOW IS<br>
+  TOO SMALL.<br>
+</div>
+<div
+  *ngIf="!itDesktop"
+  class="error-msg"
+>
+  SORRY!<br>
+  MOBILE PAGE IS NOT COMPLETE.<br>
+  PLEASE BROWSE ON A DESKTOP DEVICE FIRST.<br>
+</div>
+<!-- <div class="error-msg device"></div> -->

@@ -2,6 +2,7 @@ import { PerfectScrollbarComponent } from 'ngx-perfect-scrollbar';
 import { Component, Input, OnInit, ViewChildren, QueryList, ElementRef, ViewChild, HostListener, Output, EventEmitter, HostBinding, ChangeDetectorRef } from '@angular/core';
 import { showToolList } from '../../shared/animate';
 import { ToolData } from '../../shared/interface';
+import { RectService } from '../../shared/service';
 
 @Component({
   selector: 'app-tool-list',
@@ -68,7 +69,7 @@ export class ToolListComponent implements OnInit {
     const scrollTop = toolScrollDOM.scrollTop;
     const index = groupEleList.findIndex((ele: ElementRef) => {
       const DOM = ele.nativeElement as HTMLElement;
-      const rect = DOM.getBoundingClientRect();
+      const rect = RectService.getDomRect(DOM);
       return DOM.offsetTop + rect.height / 3 > scrollTop;
     });
     this.setFocus(index);
@@ -91,7 +92,7 @@ export class ToolListComponent implements OnInit {
   }
 
   itemClick(itemDOM: HTMLElement, toolData: ToolData): void {
-    const rect = itemDOM.getBoundingClientRect();
+    const rect = RectService.getDomRect(itemDOM)
     toolData.onClick({
       x: rect.x,
       y: rect.y,

@@ -1,16 +1,14 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { BarItem, BarItemClickData, DOMRect } from './../../shared/interface';
+import { BarItemClickData, DOMRect } from './../../shared/interface';
 
 @Component({
   selector: 'app-bar-item',
   templateUrl: './bar-item.component.html',
   styleUrls: ['./bar-item.component.scss']
 })
-export class BarItemComponent implements OnInit {
+export class BarItemComponent {
 
-  constructor(
-    private el: ElementRef,
-  ) { }
+  constructor() { }
 
 
   @Input() readonly id: string;
@@ -19,27 +17,15 @@ export class BarItemComponent implements OnInit {
   @Input() readonly isFocus: boolean;
   @Output() onItemClick = new EventEmitter<BarItemClickData>();
 
-  ngOnInit(): void {
-  }
 
+  // 實際邏輯在 TaskBarComponent
   getRect(): DOMRect {
-    const rect = (this.el.nativeElement as HTMLElement).getBoundingClientRect();
     return {
-      x: rect.x,
-      y: rect.y,
-      width: rect.width,
-      height: rect.height,
-    }
-  }
-
-  itemClick(): void {
-    const rect = this.getRect();
-    const r = {
-      id: this.id,
-      ...rect,
+      x: 0,
+      y: 0,
+      width: 0,
+      height: 0,
     };
-
-    this.onItemClick.emit(r);
   }
 
 }

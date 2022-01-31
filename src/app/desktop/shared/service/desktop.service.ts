@@ -1,7 +1,9 @@
+import { Subject, Subscription, Observable, debounceTime } from 'rxjs';
 
 import { Injectable } from '@angular/core';
 import { MinesweeperComponent, MinesweeperLevel } from 'projects/minesweeper/src/public-api';
-import { DOMRect, ToolBaseInfo, WindowData, WindowType } from '../interface/interface';
+import { DOMRect, ToolBaseInfo, ToolData, WindowData, WindowType } from '../interface/interface';
+import { RectService } from './rect.service';
 
 
 
@@ -14,7 +16,7 @@ export class DesktopService {
 
   static readonly TaskBarHeight = 40;
   static readonly WindowHeaderHeight = 24;
-  static readonly ToolData: { [WindowType: string]: ToolBaseInfo } = {
+  static readonly ToolBaseInfoData: { [WindowType: string]: ToolBaseInfo; } = {
     [WindowType.Minesweeper]: {
       type: WindowType.Minesweeper,
       name: 'Minesweeper',
@@ -23,7 +25,7 @@ export class DesktopService {
         min: '/assets/image/icon/desktop/minesweeper-min.svg'
       }
     }
-  }
+  };
   static readonly MinesweeperSize = {
     [MinesweeperLevel.Easy]: {
       width: 256,
@@ -40,19 +42,28 @@ export class DesktopService {
   };
 
   private DOM: HTMLElement;
+  private updateFocus = new Subject<string>();
+  updateFocus$: Observable<string> = this.updateFocus.pipe(debounceTime(10));
+
+  private desktopResize = new Subject<{ width: number; height: number; }>();
+  desktopResize$: Observable<{ width: number; height: number; }> = this.desktopResize.asObservable();
 
   setDOM(DOM: HTMLElement) {
     this.DOM = DOM;
   }
 
   getRect(): DOMRect {
-    const rect = this.DOM.getBoundingClientRect();
-    return {
-      x: rect.x,
-      y: rect.y,
-      width: rect.width,
-      height: rect.height,
-    };
+    return RectService.getDomRect(this.DOM);
+  }
+
+  putUpdateFoucs(id: string): void {
+    this.updateFocus.next(id);
+  }
+
+  putDesktopResize(width: number, height: number): void {
+    this.desktopResize.next({
+      width, height
+    });
   }
 
   createId(): string {
@@ -64,7 +75,7 @@ export class DesktopService {
   createMinesweeper(level: MinesweeperLevel = MinesweeperLevel.Easy): WindowData {
     return {
       id: this.createId(),
-      ...DesktopService.ToolData[WindowType.Minesweeper],
+      ...DesktopService.ToolBaseInfoData[WindowType.Minesweeper],
       openRect: {
         ...DesktopService.MinesweeperSize[level],
         x: 100,

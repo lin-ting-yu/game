@@ -1,45 +1,46 @@
-<div
-  class="background"
-  (click)="allWindowBlur()"
-></div>
-<div class="container">
-  <div class="dasktop-item-container">
-    <app-desktop-item
-      [icon]="ToolBaseInfoData[WindowType.Minesweeper].icon.default"
-      [name]="ToolBaseInfoData[WindowType.Minesweeper].name"
-      (click)="allWindowBlur()"
-      (onDblclick)="createMinesweeper($event)"
-    ></app-desktop-item>
-  </div>
-  <ng-container *ngFor="let window of windowList">
-    <app-window
-      [windowData]="window"
-      [openRect]="window.openRect"
-      [isCollapse]="window.isCollapse"
-      [content]="window.content"
-      (click)="toTop(window.id)"
-      (onClickCollapse)="collapseWindow($event)"
-      (onClickZoom)="''"
-      (onClickClose)="closeWindow($event)"
-      (onUpdateSelect)="updateSelect(window, $event)"
-      (onUpdateOpenRect)="updateOpenRect(window, $event)"
-    ></app-window>
-  </ng-container>
-</div>
-
-<div class="bar">
-  <app-task-bar [toolList]="toolList">
-    <ng-container *ngFor="let item of barItemList">
-      <app-bar-item
-        [id]="item.id"
-        [icon]="item.icon"
-        [name]="item.name"
-        [isFocus]="
-          windowList[windowList.length - 1].id === item.id &&
-          windowList[windowList.length - 1].isFocus
-        "
-        (onItemClick)="itemClick($event)"
-      ></app-bar-item>
+<div class="desktop-container">
+  <div
+    class="background"
+    (click)="allWindowBlur()"
+  ></div>
+  <div class="container">
+    <div class="dasktop-item-container">
+      <app-desktop-item
+        [icon]="ToolBaseInfoData[WindowType.Minesweeper].icon.default"
+        [name]="ToolBaseInfoData[WindowType.Minesweeper].name"
+        (click)="allWindowBlur()"
+        (onDblclick)="createMinesweeper($event)"
+      ></app-desktop-item>
+    </div>
+    <ng-container *ngFor="let window of windowList">
+      <app-window
+        [windowData]="window"
+        [openRect]="window.openRect"
+        [isCollapse]="window.isCollapse"
+        [content]="window.content"
+        (click)="toTop(window.id)"
+        (onClickCollapse)="collapseWindow($event)"
+        (onClickZoom)="''"
+        (onClickClose)="closeWindow($event)"
+        (onUpdateSelect)="updateSelect(window, $event)"
+        (onUpdateOpenRect)="updateOpenRect(window, $event)"
+      ></app-window>
     </ng-container>
-  </app-task-bar>
+  </div>
+  <div class="bar">
+    <app-task-bar [toolList]="toolList">
+      <ng-container *ngFor="let item of barItemList">
+        <app-bar-item
+          [id]="item.id"
+          [icon]="item.icon"
+          [name]="item.name"
+          [isFocus]="
+            windowList[windowList.length - 1].id === item.id &&
+            windowList[windowList.length - 1].isFocus
+          "
+          (onItemClick)="itemClick($event)"
+        ></app-bar-item>
+      </ng-container>
+    </app-task-bar>
+  </div>
 </div>
