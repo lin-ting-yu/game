@@ -35,14 +35,14 @@
 <g id="github">
 </g>
 <g id="heart">
+	<polygon class="st14" points="85,20 85,10 65,10 65,20 55,20 55,30 45,30 45,20 35,20 35,10 15,10 15,20 5,20 5,50 15,50 15,60 
+		25,60 25,70 35,70 35,80 45,80 45,90 55,90 55,80 65,80 65,70 75,70 75,60 85,60 85,50 95,50 95,20 	"/>
 </g>
 <g id="icon">
 </g>
 <g id="right-tool-close">
 </g>
 <g id="right-tool-center">
-	<path class="st11" d="M10,10v60h30v10H20v10h60V80H60V70h30V10H10z M80,60H20V20h60V60z"/>
-	<rect x="30" y="30" class="st11" width="40" height="20"/>
 </g>
 <g id="icon-fake">
 </g>
