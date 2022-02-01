@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { BarItemClickData, DOMRect } from './../../shared/interface';
+import { BarItemClickData, DOMRect } from 'projects/data/src/lib/interface';
 
 @Component({
   selector: 'app-bar-item',

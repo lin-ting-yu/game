@@ -1,6 +1,6 @@
 import { Component, EventEmitter, HostListener, Input, OnInit, Output, ElementRef, ViewChild } from '@angular/core';
-import { RectService } from '../shared/service';
-import { DOMRect } from './../shared/interface';
+import { RectService } from 'projects/data/src/lib/service';
+import { DOMRect } from 'projects/data/src/lib/interface';
 
 @Component({
   selector: 'app-desktop-item',

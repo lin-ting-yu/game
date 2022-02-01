@@ -1,7 +1,8 @@
+import { environment } from './../../../environments/environment';
 import { Component, ComponentRef, ElementRef, EventEmitter, HostBinding, HostListener, Input, OnChanges, OnInit, Output, SimpleChange, SimpleChanges, ViewChild, ViewContainerRef, ChangeDetectorRef } from '@angular/core';
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { Position } from 'projects/minesweeper/src/public-api';
-import { SizeControlType, UpdateOpenRect, DOMRect, WindowData, ContentData } from '../shared/interface';
+import { SizeControlType, UpdateOpenRect, DOMRect, WindowData, ContentData } from 'projects/data/src/lib/interface';
 
 @Component({
   selector: 'app-window',
@@ -20,6 +21,9 @@ export class WindowComponent implements OnInit, OnChanges {
   @Input() readonly windowData: WindowData;
   @Input() readonly openRect: DOMRect;
   @Input() readonly isCollapse: boolean;
+  @Input() readonly isFocus: boolean;
+  @Input() readonly isWidthFull: boolean;
+  @Input() readonly isHeightFull: boolean;
   @Input() readonly content: ContentData;
 
   @Output() onClickCollapse = new EventEmitter<string>();
@@ -42,7 +46,9 @@ export class WindowComponent implements OnInit, OnChanges {
     return (
       `${this.isCssMoving ? 'moving ' : ''}` +
       `${this.isCollapse ? 'collapse ' : ''}` +
-      `${this.windowData.isFocus ? 'focus ' : ''}`
+      `${this.windowData.isFocus ? 'focus ' : ''}` +
+      `${this.isFulling ? 'fulling ' : ''}` +
+      `${this.windowData.isWidthFull && this.windowData.isHeightFull ? 'full ' : ''}`
     );
   }
 
@@ -57,15 +63,19 @@ export class WindowComponent implements OnInit, OnChanges {
     this.isHeaderDown = false;
     this.isSizeControlDown = false;
     this.isItemDown = false;
+    this.updateComponentInpuut();
   }
   @HostListener('transitionend') transitionend() {
     this.isCssMoving = false;
+    this.isFulling = false;
   }
 
+  readonly assetsPath = environment.assetsPath;
   readonly SizeControlType = SizeControlType;
 
   isItemDown = false;
   private isCssMoving = false;
+  private isFulling = false;
 
   private innerTranslate: string = '';
   private innerWidth: string = '';
@@ -97,12 +107,24 @@ export class WindowComponent implements OnInit, OnChanges {
   ngOnChanges(changes: {
     openRect: SimpleChange;
     isCollapse: SimpleChange;
+    isFocus: SimpleChange;
+    isWidthFull: SimpleChange;
+    isHeightFull: SimpleChange;
     content: SimpleChange;
   }): void {
     if (changes.openRect && this.openRect) {
       if (!this.isCollapse) {
         this.innerStyle(this.windowData.openRect);
       }
+    }
+    if (
+      changes.isWidthFull && !changes.isWidthFull.firstChange ||
+      changes.isHeightFull && !changes.isHeightFull.firstChange
+    ) {
+      if (!this.isHeightFull && !this.isWidthFull) {
+        this.orgOpenRect = { ...this.windowData.openRect };
+      }
+      this.updateFull();
     }
     if (changes.isCollapse && typeof changes.isCollapse.previousValue === 'boolean') {
       if (this.isCollapse) {
@@ -111,8 +133,12 @@ export class WindowComponent implements OnInit, OnChanges {
         this.openWindow();
       }
     }
+
     if (changes.content && !changes.content.firstChange) {
       this.createContent();
+    }
+    if (changes.isCollapse || changes.isFocus) {
+      this.updateComponentInpuut();
     }
   }
 
@@ -129,12 +155,14 @@ export class WindowComponent implements OnInit, OnChanges {
     event.preventDefault();
     this.isHeaderDown = true;
     this.saveMouseDate(event);
+    this.updateComponentInpuut();
   }
 
   sizeControlDown(sizeControlType: SizeControlType, event: MouseEvent): void {
     event.preventDefault();
     this.isSizeControlDown = true;
     this.sizeControlType = sizeControlType;
+    this.updateComponentInpuut();
     this.saveMouseDate(event);
   }
 
@@ -158,10 +186,13 @@ export class WindowComponent implements OnInit, OnChanges {
     this.startDownPos.y = event.y;
   }
 
-  private innerStyle(DOMRect: DOMRect, scale = 1): void {
-    this.innerTranslate = `translate(${DOMRect.x}px, ${DOMRect.y}px) scale(${scale})`;
-    this.innerWidth = `${DOMRect.width}px`;
-    this.innerHeight = `${DOMRect.height}px`;
+  private innerStyle(DOMRect: DOMRect, scale: 1 | 0 = 1): void {
+    this.innerTranslate = `translate(` +
+      `${this.isWidthFull && scale ? 0 : DOMRect.x}px, `+
+      `${this.isHeightFull && scale ? 0 : DOMRect.y}px`+
+    `) scale(${scale})`;
+    this.innerWidth = this.isWidthFull && scale ? '100vw' : `${DOMRect.width}px`;
+    this.innerHeight = this.isHeightFull && scale ? 'calc(100vh - 40px)' : `${DOMRect.height}px`;
   }
 
   private handleMoveChange(event: MouseEvent): void {
@@ -176,7 +207,8 @@ export class WindowComponent implements OnInit, OnChanges {
         height: this.windowData.openRect.height,
         x: this.orgOpenRect.x + event.x - this.startDownPos.x,
         y: this.orgOpenRect.y + event.y - this.startDownPos.y,
-      }
+      },
+      mouseEvent: event
     });
   }
 
@@ -222,7 +254,8 @@ export class WindowComponent implements OnInit, OnChanges {
     this.onUpdateOpenRect.emit({
       type: 'resize',
       sizeControlType: this.sizeControlType,
-      rect: newRect
+      rect: newRect,
+      mouseEvent: event
     });
 
   }
@@ -257,6 +290,15 @@ export class WindowComponent implements OnInit, OnChanges {
     }, 0);
   }
 
+  private updateFull(): void {
+    this.isCssMoving = true;
+    this.isFulling = true;
+    setTimeout(() => {
+      this.innerStyle(this.openRect);
+      this.cdRef.markForCheck();
+    }, 0);
+  }
+
   private createContent(): void {
     if (!this.windowData.content) {
       return;
@@ -268,13 +310,30 @@ export class WindowComponent implements OnInit, OnChanges {
     if (!this.windowData.content || !this.contentComponent) {
       return;
     }
-    const inputs = this.windowData.content.inputs;
+    this.updateComponentInpuut();
+
+  }
+
+  private updateComponentInpuut(): void {
+    if (!this.contentComponent) {
+      return;
+    }
+    const inputs = this.windowData.content?.inputs;
+    const instance = (this.contentComponent as any).instance;
+    instance.isFocus = this.windowData.isFocus;
+    instance.isCollapse = this.windowData.isCollapse;
+    instance.isMoving = this.isHeaderDown;
+    instance.isResizing = this.isSizeControlDown;
+
     if (inputs) {
       Object.keys(inputs).forEach(key => {
-        (this.contentComponent as any).instance[key] = inputs[key];
+        instance[key] = inputs[key];
       });
     }
-
+    this.contentComponent.changeDetectorRef.detectChanges();
+    if (instance.windowUpdateInput) {
+      instance.windowUpdateInput();
+    }
   }
 
 }

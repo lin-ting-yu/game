@@ -1,8 +1,8 @@
-import { environment } from './../../environments/environment.prod';
-import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnInit, QueryList, ViewChildren, ChangeDetectorRef, HostBinding } from '@angular/core';
+import { environment } from './../../environments/environment';
+import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnInit, QueryList, ViewChildren, ChangeDetectorRef } from '@angular/core';
 import { MinesweeperComponent, MinesweeperLevel } from 'projects/minesweeper/src/public-api';
-import { BarItem, UpdateOpenRect, WindowData, DOMRect, BarItemClickData, SizeControlType, WindowType, ToolData } from './shared/interface/interface';
-import { DesktopService, RectService } from './shared/service';
+import { BarItem, UpdateOpenRect, WindowData, DOMRect, BarItemClickData, SizeControlType, WindowType, ToolData } from 'projects/data/src/lib/interface';
+import { DesktopService, RectService } from 'projects/data/src/lib/service';
 import { BarItemComponent } from './task-bar/bar-item/bar-item.component';
 
 @Component({
@@ -35,19 +35,25 @@ export class DesktopComponent implements OnInit {
     }
   }
   @HostListener('contextmenu') contextmenu(): boolean {
-    return this.production;
+    return !this.production;
   }
 
   private oldWidth: number;
   private oldHeight: number;
   readonly production = environment.production;
+  readonly assetsPath = environment.assetsPath;
   readonly WindowType = WindowType;
   readonly ToolBaseInfoData = DesktopService.ToolBaseInfoData;
 
+  readonly zIndexMapping: { [id: string]: number; } = { };
   readonly toolList: ToolData[] = [
     {
       ...DesktopService.ToolBaseInfoData[WindowType.Minesweeper],
       onClick: (rect: DOMRect) => { this.createMinesweeper(rect); }
+    },
+    {
+      ...DesktopService.ToolBaseInfoData[WindowType.Div100],
+      onClick: (rect: DOMRect) => { this.create100Div(rect); }
     }
   ];
 
@@ -63,8 +69,8 @@ export class DesktopComponent implements OnInit {
         type: WindowType.Minesweeper,
         name: `${en} Fake Item ${~~(Math.random() * 100000)}`,
         icon: {
-          default: '/assets/image/icon/desktop/minesweeper.svg',
-          min: '/assets/image/icon/desktop/minesweeper-min.svg'
+          default: `${this.assetsPath}/image/icon/desktop/minesweeper.svg`,
+          min: `${this.assetsPath}/image/icon/desktop/minesweeper-min.svg`
         },
         onClick: () => { }
       });
@@ -88,6 +94,11 @@ export class DesktopComponent implements OnInit {
     }
   }
 
+  zoomWindow(windowData: WindowData): void {
+    windowData.isWidthFull = !windowData.isWidthFull;
+    windowData.isHeightFull = !windowData.isHeightFull;
+  }
+
   closeWindow(id: string): void {
     const barItemIndex = this.barItemComponentList.toArray().findIndex(cpt => cpt.id === id);
     const windowIndex = this.windowList.findIndex(w => w.id === id);
@@ -104,9 +115,6 @@ export class DesktopComponent implements OnInit {
     const innerWindowRect = { ...updateOpenRect.rect };
     const rect = this.desktopService.getRect();
     const maxHeight = rect.height - DesktopService.TaskBarHeight;
-
-    windowData.isWidthFull = false;
-    windowData.isHeightFull = false;
 
     // 判斷左出界
     if (innerWindowRect.x < 0) {
@@ -169,6 +177,20 @@ export class DesktopComponent implements OnInit {
       }
       innerWindowRect.height = windowData.minHeight;
     }
+
+    if (windowData.isWidthFull && windowData.isHeightFull) {
+      console.log(updateOpenRect.mouseEvent.x);
+
+      if (
+        updateOpenRect.mouseEvent.x <= innerWindowRect.width ||
+        updateOpenRect.mouseEvent.x >= innerWindowRect.width + innerWindowRect.x - 80
+      ) {
+        innerWindowRect.x = updateOpenRect.mouseEvent.x - innerWindowRect.width / 2;
+      }
+      innerWindowRect.y = 0;
+    }
+    windowData.isWidthFull = false;
+    windowData.isHeightFull = false;
     windowData.openRect = innerWindowRect;
     this.toTop(windowData.id);
   }
@@ -208,16 +230,14 @@ export class DesktopComponent implements OnInit {
   }
 
   toTop(id: string, check = true): void {
-    const lastIndex = this.windowList.length - 1;
-    if (this.windowList[lastIndex].id === id && check && this.windowList[lastIndex].isFocus) {
-      this.windowList[lastIndex].isFocus = true;
-      return;
-    }
-    const index = this.windowList.findIndex(item => item.id === id);
-    this.windowList.forEach(item => { item.isFocus = false; });
-    this.windowList[index].isFocus = true;
-    const windowData = this.windowList.splice(index, 1);
-    this.windowList.push(windowData[0]);
+    this.updateZIndex(this.zIndexMapping[id]);
+    this.windowList.forEach(item => {
+      if (item.id !== id) {
+        item.isFocus = false;
+      } else {
+        item.isFocus = true;
+      }
+    });
     this.cdRef.detectChanges();
     this.desktopService.putUpdateFoucs(id);
   }
@@ -240,6 +260,7 @@ export class DesktopComponent implements OnInit {
       icon: minesweeper.icon.min,
       name: minesweeper.name
     });
+    this.zIndexMapping[minesweeper.id] = this.windowList.length;
     setTimeout(() => {
       minesweeper.isCollapse = false;
       this.toTop(minesweeper.id, false);
@@ -247,7 +268,37 @@ export class DesktopComponent implements OnInit {
     }, 0);
   }
 
+  create100Div(rect: DOMRect): void {
+    const div100 = this.desktopService.create100Div();
+    const parentRect = this.desktopService.getRect();
+    div100.isCollapse = true;
+    div100.closeRect = rect;
+    div100.openRect.x = (parentRect.width - div100.openRect.width) / 2;
+    div100.openRect.y = (parentRect.height - div100.openRect.height) / 2;
+    this.windowList.push(div100);
+    this.barItemList.push({
+      id: div100.id,
+      icon: div100.icon.min,
+      name: div100.name
+    });
+    this.zIndexMapping[div100.id] = this.windowList.length;
+    setTimeout(() => {
+      div100.isCollapse = false;
+      this.toTop(div100.id, false);
+      this.cdRef.markForCheck();
+    }, 0);
+  }
 
+  private updateZIndex(targetIndex: number): void {
+    const idList = Object.keys(this.zIndexMapping);
+    idList.forEach(id => {
+      if (this.zIndexMapping[id] === targetIndex) {
+        this.zIndexMapping[id]  = idList.length;
+      } else if (this.zIndexMapping[id] > targetIndex) {
+        this.zIndexMapping[id] --;
+      }
+    })
+  }
 
   private setDOM(): void {
     this.desktopService.setDOM((this.el.nativeElement as HTMLElement));

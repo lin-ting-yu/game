@@ -1,9 +1,10 @@
 import { Component, ContentChildren, Input, OnDestroy, OnInit, QueryList, ViewChild, ViewContainerRef, ElementRef, ChangeDetectorRef, ViewChildren } from '@angular/core';
-import { ToolData } from '../shared/interface';
+import { ToolData } from 'projects/data/src/lib/interface';
 import * as dayjs from 'dayjs';
 import { BarItemComponent } from './bar-item/bar-item.component';
-import { DesktopService, RectService } from '../shared/service';
+import { DesktopService, RectService } from 'projects/data/src/lib/service';
 import { Subscription } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 @Component({
   selector: 'app-task-bar',
@@ -24,6 +25,7 @@ export class TaskBarComponent implements OnInit, OnDestroy {
   @Input() readonly toolList: ToolData[];
 
 
+  readonly assetsPath = environment.assetsPath;
   private resize$: Subscription;
   private updateFocus$: Subscription;
   private barItemChange$: Subscription;

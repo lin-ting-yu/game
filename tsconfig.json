@@ -11,9 +11,21 @@
     "strictPropertyInitialization": false,
     "noImplicitReturns": true,
     "paths": {
+      "data": [
+        "dist/data/data",
+        "dist/data"
+      ],
+      "iframe-content": [
+        "dist/iframe-content/iframe-content",
+        "dist/iframe-content"
+      ],
       "minesweeper": [
         "dist/minesweeper/minesweeper",
         "dist/minesweeper"
+      ],
+      "pipe": [
+        "dist/pipe/pipe",
+        "dist/pipe"
       ],
       "service": [
         "dist/service/service",

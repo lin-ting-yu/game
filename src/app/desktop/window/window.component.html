@@ -9,7 +9,7 @@
   >
     <div class="select-text">{{ selectText }}</div>
     <div class="select-icon">
-      <svg-icon src="/assets/image/icon/header-arrow.svg"></svg-icon>
+      <svg-icon [src]="assetsPath + '/image/icon/header-arrow.svg'"></svg-icon>
     </div>
     <select
       [(ngModel)]="windowData.select.value"
@@ -26,28 +26,33 @@
     </select> -->
   </div>
   <div
-    *ngIf="windowData.isDisabledCollapse"
+    *ngIf="!windowData.isDisabledCollapse"
     class="icon"
     (mousedown)="isItemDown = true"
     (click)="onClickCollapse.emit(windowData.id);"
   >
-    <svg-icon src="/assets/image/icon/header-collapse.svg"></svg-icon>
+    <svg-icon [src]="assetsPath + '/image/icon/header-collapse.svg'"></svg-icon>
   </div>
   <div
-    *ngIf="windowData.isDisabledZoom"
+    *ngIf="!windowData.isDisabledZoom"
     class="icon"
     (mousedown)="isItemDown = true"
     (click)="onClickZoom.emit(windowData.id);"
   >
-    <svg-icon src="/assets/image/icon/header-zoom.svg"></svg-icon>
+    <ng-conteinar *ngIf="this.windowData.isWidthFull && this.windowData.isHeightFull; else zoomIn;">
+      <svg-icon class="zoom-out" [src]="assetsPath + '/image/icon/header-zoom-out.svg'"></svg-icon>
+    </ng-conteinar>
+    <ng-template #zoomIn>
+      <svg-icon class="zoom-in" [src]="assetsPath + '/image/icon/header-zoom-in.svg'"></svg-icon>
+    </ng-template>
   </div>
   <div
-    *ngIf="windowData.isDisabledClose"
+    *ngIf="!windowData.isDisabledClose"
     class="icon"
     (mousedown)="isItemDown = true"
     (click)="onClickClose.emit(windowData.id)"
   >
-    <svg-icon src="/assets/image/icon/header-cross.svg"></svg-icon>
+    <svg-icon [src]="assetsPath + '/image/icon/header-cross.svg'"></svg-icon>
   </div>
 </div>
 <div class="body">

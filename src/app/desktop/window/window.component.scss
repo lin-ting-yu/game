@@ -21,12 +21,22 @@ $border-size: 1px;
     transition-property: width, height, transform;
     transition-timing-function: $size-fn-collapse, $size-fn-collapse, $transform-fn;
   }
+  &.fulling {
+    transition: 0.2s;
+    transition-timing-function: $size-fn-collapse;
+  }
   &.focus {
     .header {
       background-color: $color-0;
     }
     .body {
       border-color: $color-0;
+    }
+  }
+  &.full {
+    .header,
+    .body {
+      border-radius: 0;
     }
   }
 }

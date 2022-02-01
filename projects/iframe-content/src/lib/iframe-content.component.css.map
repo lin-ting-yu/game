@@ -1,0 +1,14 @@
+{
+    "version": 3,
+    "mappings": "AAEA,AAAA,KAAK,CAAC;EACJ,OAAO,EAAE,KAAK;EACd,KAAK,EAAE,IAAI;EACX,MAAM,EAAE,IAAI;EACZ,QAAQ,EAAE,QAAQ;EAClB,gBAAgB,EEJR,OAAO;CFQhB;;AATD,AAME,KANG,AAMF,MAAM,CAAC;EACN,gBAAgB,EEPV,OAAO;CFQd;;AAEH,AAAA,MAAM,CAAC;EACL,KAAK,EAAE,IAAI;EACX,MAAM,EAAE,IAAI;EACZ,QAAQ,EAAE,QAAQ;EAClB,GAAG,EAAE,GAAG;EACR,IAAI,EAAE,GAAG;EACT,SAAS,EAAE,qBAAqB,CAAC,YAAY;CAC9C;;AAED,AAAA,KAAK,CAAC;EACJ,KAAK,EAAE,IAAI;EACX,MAAM,EAAE,IAAI;EACZ,gBAAgB,EAAE,WAAW;EAC7B,QAAQ,EAAE,QAAQ;CACnB",
+    "sources": [
+        "iframe-content.component.scss",
+        "../../../../scss/export.scss",
+        "../../../../scss/_variable.scss",
+        "../../../../scss/_function.scss",
+        "../../../../scss/_mixin.scss",
+        "../../../../scss/_variable.scss"
+    ],
+    "names": [],
+    "file": "iframe-content.component.css"
+}

@@ -1,8 +1,8 @@
 import { PerfectScrollbarComponent } from 'ngx-perfect-scrollbar';
 import { Component, Input, OnInit, ViewChildren, QueryList, ElementRef, ViewChild, HostListener, Output, EventEmitter, HostBinding, ChangeDetectorRef } from '@angular/core';
-import { showToolList } from '../../shared/animate';
-import { ToolData } from '../../shared/interface';
-import { RectService } from '../../shared/service';
+import { showToolList } from 'projects/data/src/lib/animate';
+import { ToolData } from 'projects/data/src/lib/interface';
+import { RectService } from 'projects/data/src/lib/service';
 
 @Component({
   selector: 'app-tool-list',

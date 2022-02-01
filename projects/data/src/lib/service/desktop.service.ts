@@ -4,6 +4,8 @@ import { Injectable } from '@angular/core';
 import { MinesweeperComponent, MinesweeperLevel } from 'projects/minesweeper/src/public-api';
 import { DOMRect, ToolBaseInfo, ToolData, WindowData, WindowType } from '../interface/interface';
 import { RectService } from './rect.service';
+import { environment } from 'src/environments/environment';
+import { IframeContentComponent } from 'projects/iframe-content/src/public-api';
 
 
 
@@ -21,8 +23,16 @@ export class DesktopService {
       type: WindowType.Minesweeper,
       name: 'Minesweeper',
       icon: {
-        default: '/assets/image/icon/desktop/minesweeper.svg',
-        min: '/assets/image/icon/desktop/minesweeper-min.svg'
+        default: `${environment.assetsPath}/image/icon/desktop/minesweeper.svg`,
+        min: `${environment.assetsPath}/image/icon/desktop/minesweeper-min.svg`
+      }
+    },
+    [WindowType.Div100]: {
+      type: WindowType.Div100,
+      name: '100 DIV',
+      icon: {
+        default: `${environment.assetsPath}/image/icon/desktop/minesweeper.svg`,
+        min: `${environment.assetsPath}/image/icon/desktop/minesweeper-min.svg`
       }
     }
   };
@@ -94,9 +104,9 @@ export class DesktopService {
       isCollapse: false,
       isFocus: true,
       isDisabledSelect: false,
-      isDisabledCollapse: true,
-      isDisabledZoom: false,
-      isDisabledClose: true,
+      isDisabledCollapse: false,
+      isDisabledZoom: true,
+      isDisabledClose: false,
       isDisabledControlSize: true,
       content: {
         component: MinesweeperComponent,
@@ -120,6 +130,42 @@ export class DesktopService {
           },
         ],
         value: level
+      }
+    };
+  }
+
+  create100Div(): WindowData {
+    return {
+      id: this.createId(),
+      ...DesktopService.ToolBaseInfoData[WindowType.Div100],
+      openRect: {
+        width: 600,
+        height: 400,
+        x: 100,
+        y: 100,
+      },
+      closeRect: {
+        width: 0,
+        height: 0,
+        x: 0,
+        y: 0,
+      },
+      minWidth: 600,
+      minHeight: 400,
+      isWidthFull: false,
+      isHeightFull: false,
+      isCollapse: false,
+      isFocus: true,
+      isDisabledSelect: true,
+      isDisabledCollapse: false,
+      isDisabledZoom: false,
+      isDisabledClose: false,
+      isDisabledControlSize: false,
+      content: {
+        component: IframeContentComponent,
+        inputs: {
+          src: 'http://localhost:8848/index.html'
+        }
       }
     };
   }

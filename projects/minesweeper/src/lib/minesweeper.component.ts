@@ -11,6 +11,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core';
+import { WindowInnerComponent } from 'projects/data/src/lib/interface';
 import { OpenLandEnum } from '../public-api';
 import { Land, Minesweeper } from './core/minesweeper';
 
@@ -46,7 +47,7 @@ const mouseupIntervalTime = 30;
   styleUrls: ['./minesweeper.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class MinesweeperComponent implements OnInit, OnChanges, OnDestroy {
+export class MinesweeperComponent implements OnInit, OnChanges, OnDestroy, WindowInnerComponent {
   constructor(
     private cdRef: ChangeDetectorRef
   ) { }

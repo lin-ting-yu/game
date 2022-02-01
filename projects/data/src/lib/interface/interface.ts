@@ -1,4 +1,4 @@
-import { Type } from "@angular/core";
+import { ChangeDetectorRef, Type } from "@angular/core";
 import { Observable } from "rxjs";
 
 
@@ -15,7 +15,8 @@ export interface ContentData {
   };
 }
 export enum WindowType {
-  Minesweeper = 'minesweeper'
+  Minesweeper = 'minesweeper',
+  Div100 = 'div100',
 }
 
 export interface ToolBaseInfo {
@@ -49,6 +50,15 @@ export interface WindowData extends ToolBaseInfo {
   content?: ContentData;
 }
 
+export interface WindowInnerComponent {
+  [key: string]: any;
+  isFocus?: boolean;
+  isCollapse?: boolean;
+  isMoving?: boolean;
+  isResizing?: boolean;
+  windowUpdateInput?: () => void;
+}
+
 export interface BarItem {
   id: string;
   icon?: string;
@@ -78,6 +88,7 @@ export interface UpdateOpenRect {
   type: 'move' | 'resize';
   sizeControlType: SizeControlType | null;
   rect: DOMRect;
+  mouseEvent: MouseEvent
 }
 
 export interface ToolData extends ToolBaseInfo {
