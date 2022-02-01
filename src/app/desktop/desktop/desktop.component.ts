@@ -42,7 +42,7 @@ export class DesktopComponent implements OnInit {
       this.desktopService.putDesktopResize(rect.width, rect.height);
     }
   }
-  @HostListener('document.body.contextmenu') contextmenu(): boolean {
+  @HostListener('document:contextmenu') contextmenu(): boolean {
     return !this.production;
   }
 
