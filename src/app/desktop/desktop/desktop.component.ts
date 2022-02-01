@@ -1,17 +1,23 @@
-import { environment } from './../../environments/environment';
+import { RightMenuComponent } from './../right-menu/right-menu.component';
+import { environment } from './../../../environments/environment';
 import { ChangeDetectionStrategy, Component, ElementRef, HostListener, OnInit, QueryList, ViewChildren, ChangeDetectorRef } from '@angular/core';
 import { MinesweeperComponent, MinesweeperLevel } from 'projects/minesweeper/src/public-api';
-import { BarItem, UpdateOpenRect, WindowData, DOMRect, BarItemClickData, SizeControlType, WindowType, ToolData } from 'projects/data/src/lib/interface';
+import { BarItem, UpdateOpenRect, WindowData, DOMRect, BarItemClickData, SizeControlType, WindowType, ToolData, DesktopItemContextmenu } from 'projects/data/src/lib/interface';
 import { DesktopService, RectService } from 'projects/data/src/lib/service';
-import { BarItemComponent } from './task-bar/bar-item/bar-item.component';
+import { BarItemComponent } from './../task-bar/bar-item/bar-item.component';
+import { OverlayService } from '../shared/service/overlay.service';
+import * as createjs from 'createjs-module';
+import { GreetService } from '../shared/service/greet.service';
 
 @Component({
   selector: 'app-desktop',
   templateUrl: './desktop.component.html',
   styleUrls: ['./desktop.component.scss'],
   providers: [
+    OverlayService,
     RectService,
-    DesktopService
+    DesktopService,
+    GreetService
   ],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
@@ -19,8 +25,10 @@ export class DesktopComponent implements OnInit {
 
   constructor(
     private el: ElementRef,
+    private cdRef: ChangeDetectorRef,
+    private greetService: GreetService,
     private desktopService: DesktopService,
-    private cdRef: ChangeDetectorRef
+    private overlayService: OverlayService,
   ) {
     RectService.parentTagName = 'APP-DESKTOP';
   }
@@ -34,7 +42,7 @@ export class DesktopComponent implements OnInit {
       this.desktopService.putDesktopResize(rect.width, rect.height);
     }
   }
-  @HostListener('contextmenu') contextmenu(): boolean {
+  @HostListener('document.body.contextmenu') contextmenu(): boolean {
     return !this.production;
   }
 
@@ -45,7 +53,7 @@ export class DesktopComponent implements OnInit {
   readonly WindowType = WindowType;
   readonly ToolBaseInfoData = DesktopService.ToolBaseInfoData;
 
-  readonly zIndexMapping: { [id: string]: number; } = { };
+  readonly zIndexMapping: { [id: string]: number; } = {};
   readonly toolList: ToolData[] = [
     {
       ...DesktopService.ToolBaseInfoData[WindowType.Minesweeper],
@@ -54,6 +62,35 @@ export class DesktopComponent implements OnInit {
     {
       ...DesktopService.ToolBaseInfoData[WindowType.Div100],
       onClick: (rect: DOMRect) => { this.create100Div(rect); }
+    },
+    {
+      ...DesktopService.ToolBaseInfoData[WindowType.GitHub],
+      onClick: (rect: DOMRect) => {
+        window.open('https://github.com/lin-ting-yu/game');
+      }
+    },
+  ];
+
+  readonly desktopItemList = [
+    {
+      toolBaseInfo: this.ToolBaseInfoData[WindowType.GitHub],
+      onDblclick: (rect: DOMRect) => {
+        window.open('https://github.com/lin-ting-yu/game');
+      },
+      rightClick: (rect: DesktopItemContextmenu) =>
+        this.rightClick(rect, 'https://github.com/lin-ting-yu/game')
+    },
+    {
+      toolBaseInfo: this.ToolBaseInfoData[WindowType.Minesweeper],
+      onDblclick: (rect: DOMRect) => this.createMinesweeper(rect),
+      rightClick: (rect: DesktopItemContextmenu) =>
+        this.rightClick(rect, 'https://github.com/lin-ting-yu/minesweeper', (rect) => this.createMinesweeper(rect))
+    },
+    {
+      toolBaseInfo: this.ToolBaseInfoData[WindowType.Div100],
+      onDblclick: (rect: DOMRect) => this.create100Div(rect),
+      rightClick: (rect: DesktopItemContextmenu) =>
+        this.rightClick(rect, 'https://github.com/lin-ting-yu/100div', (rect) => this.create100Div(rect))
     }
   ];
 
@@ -69,8 +106,8 @@ export class DesktopComponent implements OnInit {
         type: WindowType.Minesweeper,
         name: `${en} Fake Item ${~~(Math.random() * 100000)}`,
         icon: {
-          default: `${this.assetsPath}/image/icon/desktop/minesweeper.svg`,
-          min: `${this.assetsPath}/image/icon/desktop/minesweeper-min.svg`
+          default: `${this.assetsPath}/image/icon/desktop/fake-icon.svg`,
+          min: `${this.assetsPath}/image/icon/desktop/fake-icon.svg`
         },
         onClick: () => { }
       });
@@ -116,6 +153,21 @@ export class DesktopComponent implements OnInit {
     const rect = this.desktopService.getRect();
     const maxHeight = rect.height - DesktopService.TaskBarHeight;
 
+    // 全螢幕模式
+    if (windowData.isWidthFull && windowData.isHeightFull) {
+      if (updateOpenRect.type === 'move') {
+        if (
+          updateOpenRect.mouseEvent.x <= innerWindowRect.width ||
+          updateOpenRect.mouseEvent.x >= innerWindowRect.width + innerWindowRect.x - 80
+        ) {
+          innerWindowRect.x = updateOpenRect.mouseEvent.x - innerWindowRect.width / 2;
+        }
+        innerWindowRect.y = 0;
+      } else {
+
+      }
+    }
+
     // 判斷左出界
     if (innerWindowRect.x < 0) {
       if (updateOpenRect.type === 'resize') {
@@ -146,7 +198,6 @@ export class DesktopComponent implements OnInit {
       innerWindowRect.width = windowData.minWidth;
     }
 
-
     // 判斷下出界
     if (innerWindowRect.y + innerWindowRect.height + DesktopService.TaskBarHeight > rect.height) {
       if (updateOpenRect.type === 'resize') {
@@ -176,18 +227,6 @@ export class DesktopComponent implements OnInit {
         innerWindowRect.y += diff;
       }
       innerWindowRect.height = windowData.minHeight;
-    }
-
-    if (windowData.isWidthFull && windowData.isHeightFull) {
-      console.log(updateOpenRect.mouseEvent.x);
-
-      if (
-        updateOpenRect.mouseEvent.x <= innerWindowRect.width ||
-        updateOpenRect.mouseEvent.x >= innerWindowRect.width + innerWindowRect.x - 80
-      ) {
-        innerWindowRect.x = updateOpenRect.mouseEvent.x - innerWindowRect.width / 2;
-      }
-      innerWindowRect.y = 0;
     }
     windowData.isWidthFull = false;
     windowData.isHeightFull = false;
@@ -247,57 +286,125 @@ export class DesktopComponent implements OnInit {
     this.desktopService.putUpdateFoucs('');
   }
 
-  createMinesweeper(rect: DOMRect): void {
-    const minesweeper = this.desktopService.createMinesweeper();
+  windowToCenter(event: BarItemClickData): void {
+    const desktopRect = this.desktopService.getRect();
+    const windowData = this.windowList.find(windowData => windowData.id === event.id);
+    if (windowData) {
+      const rect = { ...windowData.openRect };
+      const centerData = {
+        x: (desktopRect.width - (rect?.width || 0)) / 2,
+        y: (desktopRect.height - (rect?.height || 0)) / 2,
+        width: rect?.width,
+        height: rect?.height,
+      };
+      if (windowData.isCollapse) {
+        windowData.openRect = centerData;
+        windowData.isCollapse = false;
+        this.toTop(event.id, false);
+        this.cdRef.markForCheck();
+      } else {
+        this.toTop(event.id, false);
+        createjs.Tween
+          .get(rect)
+          .to(centerData, 200, createjs.Ease.cubicOut)
+          .addEventListener('change', (e) => {
+            windowData.openRect = {
+              x: rect.x,
+              y: rect.y,
+              width: rect.width,
+              height: rect.height,
+            };
+            this.cdRef.markForCheck();
+          });
+      }
+    }
+  }
+
+  private createWindowConponent(rect: DOMRect, windowData: WindowData): void {
     const parentRect = this.desktopService.getRect();
-    minesweeper.isCollapse = true;
-    minesweeper.closeRect = rect;
-    minesweeper.openRect.x = (parentRect.width - minesweeper.openRect.width) / 2;
-    minesweeper.openRect.y = (parentRect.height - minesweeper.openRect.height) / 2;
-    this.windowList.push(minesweeper);
+    windowData.isCollapse = true;
+    windowData.closeRect = rect;
+    windowData.openRect.x = (parentRect.width - windowData.openRect.width) / 2;
+    windowData.openRect.y = (parentRect.height - windowData.openRect.height) / 2;
+    this.windowList.push(windowData);
     this.barItemList.push({
-      id: minesweeper.id,
-      icon: minesweeper.icon.min,
-      name: minesweeper.name
+      id: windowData.id,
+      icon: windowData.icon.min,
+      name: windowData.name
     });
-    this.zIndexMapping[minesweeper.id] = this.windowList.length;
+    this.zIndexMapping[windowData.id] = this.windowList.length;
     setTimeout(() => {
-      minesweeper.isCollapse = false;
-      this.toTop(minesweeper.id, false);
+      windowData.isCollapse = false;
+      this.toTop(windowData.id, false);
       this.cdRef.markForCheck();
     }, 0);
   }
+  private createMinesweeper(rect: DOMRect): void {
+    this.createWindowConponent(
+      rect,
+      this.desktopService.createMinesweeper()
+    );
+  }
 
-  create100Div(rect: DOMRect): void {
-    const div100 = this.desktopService.create100Div();
-    const parentRect = this.desktopService.getRect();
-    div100.isCollapse = true;
-    div100.closeRect = rect;
-    div100.openRect.x = (parentRect.width - div100.openRect.width) / 2;
-    div100.openRect.y = (parentRect.height - div100.openRect.height) / 2;
-    this.windowList.push(div100);
-    this.barItemList.push({
-      id: div100.id,
-      icon: div100.icon.min,
-      name: div100.name
+  private create100Div(rect: DOMRect): void {
+    this.createWindowConponent(
+      rect,
+      this.desktopService.create100Div()
+    );
+  }
+
+  private rightClick(
+    event: DesktopItemContextmenu,
+    githubUrl: string,
+    openFn?: (rect: DOMRect) => void
+  ): void {
+    const overlay = this.overlayService.openOverlay<RightMenuComponent>(
+      { x: event.mouseEvent.pageX, y: event.mouseEvent.pageY },
+      RightMenuComponent,
+      {
+        rightItemList: [
+          {
+            icon: `${this.assetsPath}/image/icon/right-tool/open.svg`,
+            name: 'Open',
+            isDisabled: !openFn,
+            onClick: () => {
+              if (openFn) {
+                openFn(event.rect);
+                this.cdRef.markForCheck();
+              }
+            }
+          },
+          {
+            icon: `${this.assetsPath}/image/icon/right-tool/github.svg`,
+            name: 'Github',
+            onClick: () => {
+              window.open(githubUrl);
+            }
+          },
+          {
+            icon: `${this.assetsPath}/image/icon/right-tool/heart.svg`,
+            name: 'Say Hi',
+            onClick: () => {
+              this.greetService.greet(event.rect.x, event.rect.y);
+            }
+          },
+        ],
+      }
+    );
+    overlay.componentRef.instance.putClose.subscribe(() => {
+      overlay.destroy();
     });
-    this.zIndexMapping[div100.id] = this.windowList.length;
-    setTimeout(() => {
-      div100.isCollapse = false;
-      this.toTop(div100.id, false);
-      this.cdRef.markForCheck();
-    }, 0);
   }
 
   private updateZIndex(targetIndex: number): void {
     const idList = Object.keys(this.zIndexMapping);
     idList.forEach(id => {
       if (this.zIndexMapping[id] === targetIndex) {
-        this.zIndexMapping[id]  = idList.length;
+        this.zIndexMapping[id] = idList.length;
       } else if (this.zIndexMapping[id] > targetIndex) {
-        this.zIndexMapping[id] --;
+        this.zIndexMapping[id]--;
       }
-    })
+    });
   }
 
   private setDOM(): void {

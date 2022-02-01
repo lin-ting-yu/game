@@ -16,7 +16,7 @@ export class DesktopService {
 
   constructor() { }
 
-  static readonly TaskBarHeight = 40;
+  static readonly TaskBarHeight = 40 - 1 ;
   static readonly WindowHeaderHeight = 24;
   static readonly ToolBaseInfoData: { [WindowType: string]: ToolBaseInfo; } = {
     [WindowType.Minesweeper]: {
@@ -31,8 +31,16 @@ export class DesktopService {
       type: WindowType.Div100,
       name: '100 DIV',
       icon: {
-        default: `${environment.assetsPath}/image/icon/desktop/minesweeper.svg`,
-        min: `${environment.assetsPath}/image/icon/desktop/minesweeper-min.svg`
+        default: `${environment.assetsPath}/image/icon/desktop/100div.svg`,
+        min: `${environment.assetsPath}/image/icon/desktop/100div-min.svg`
+      }
+    },
+    [WindowType.GitHub]: {
+      type: WindowType.GitHub,
+      name: 'GitHub',
+      icon: {
+        default: `${environment.assetsPath}/image/icon/desktop/github.svg`,
+        min: `${environment.assetsPath}/image/icon/desktop/github.svg`
       }
     }
   };
@@ -63,7 +71,7 @@ export class DesktopService {
   }
 
   getRect(): DOMRect {
-    return RectService.getDomRect(this.DOM);
+    return RectService.getDOMRect(this.DOM);
   }
 
   putUpdateFoucs(id: string): void {

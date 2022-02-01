@@ -69,7 +69,7 @@ export class ToolListComponent implements OnInit {
     const scrollTop = toolScrollDOM.scrollTop;
     const index = groupEleList.findIndex((ele: ElementRef) => {
       const DOM = ele.nativeElement as HTMLElement;
-      const rect = RectService.getDomRect(DOM);
+      const rect = RectService.getDOMRect(DOM);
       return DOM.offsetTop + rect.height / 3 > scrollTop;
     });
     this.setFocus(index);
@@ -92,7 +92,7 @@ export class ToolListComponent implements OnInit {
   }
 
   itemClick(itemDOM: HTMLElement, toolData: ToolData): void {
-    const rect = RectService.getDomRect(itemDOM)
+    const rect = RectService.getDOMRect(itemDOM)
     toolData.onClick({
       x: rect.x,
       y: rect.y,

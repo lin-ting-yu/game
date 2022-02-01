@@ -15,7 +15,9 @@ export class BarItemComponent {
   @Input() readonly icon: string;
   @Input() readonly name: string;
   @Input() readonly isFocus: boolean;
-  @Output() onItemClick = new EventEmitter<BarItemClickData>();
+  @Output() onClickItem = new EventEmitter<BarItemClickData>();
+  @Output() onClickClose = new EventEmitter<string>();
+  @Output() onClickCenter = new EventEmitter<BarItemClickData>();
 
 
   // 實際邏輯在 TaskBarComponent

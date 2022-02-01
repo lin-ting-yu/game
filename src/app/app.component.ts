@@ -1,5 +1,6 @@
 import { Component, HostListener } from '@angular/core';
 import { DeviceDetectorService } from 'ngx-device-detector';
+import * as createjs from 'createjs-module';
 
 @Component({
   selector: 'app-root',
@@ -11,7 +12,9 @@ export class AppComponent {
 
   constructor(
     private deviceService: DeviceDetectorService
-  ) {}
+  ) {
+    createjs.Ticker.timingMode = createjs.Ticker.RAF;
+  }
   @HostListener('window:resize', ['$event.target']) hostResise(event: any) {
     this.checkSize()
   }

@@ -1,0 +1,53 @@
+@import './../../../../scss/export.scss';
+
+:host {
+  display: block;
+  width: grid(40);
+  background-color: $color-6;
+  border-radius: 5px;
+  border: solid 2px $color-0;
+  color: $color-0;
+  font-family: "Press Start 2P", cursive;
+  overflow: hidden;
+  position: relative;
+  .item {
+    display: flex;
+    align-items: center;
+    padding-left: grid(3);
+    width: 100%;
+    height: grid(9);
+    font-size: grid(3);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    cursor: pointer;
+    &:hover {
+      background-color: $color-5;
+    }
+    &:active {
+      background-color: $color-4;
+    }
+    &.disabled {
+      color: $color-2 !important;
+      background-color: $color-6 !important;
+      cursor: not-allowed;
+    }
+
+    & + .item {
+      border-top: solid 2px $color-3;
+    }
+  }
+  .icon {
+    width: grid(4);
+    height: grid(4);
+    line-height: 0;
+    margin-right: grid(2);
+    img {
+      width: 100%;
+      height: 100%;
+    }
+  }
+  .name {
+    padding-top: 1px;
+  }
+}

@@ -3,6 +3,7 @@ import { Component, ComponentRef, ElementRef, EventEmitter, HostBinding, HostLis
 import { DomSanitizer, SafeStyle } from '@angular/platform-browser';
 import { Position } from 'projects/minesweeper/src/public-api';
 import { SizeControlType, UpdateOpenRect, DOMRect, WindowData, ContentData } from 'projects/data/src/lib/interface';
+import { DesktopService } from 'projects/data/src/lib/service';
 
 @Component({
   selector: 'app-window',
@@ -14,7 +15,8 @@ export class WindowComponent implements OnInit, OnChanges {
   constructor(
     private el: ElementRef,
     private sanitizer: DomSanitizer,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private desktopService: DesktopService
   ) { }
 
   @ViewChild('bodyContent', { read: ViewContainerRef }) bodyContent: ViewContainerRef;
@@ -44,10 +46,10 @@ export class WindowComponent implements OnInit, OnChanges {
   @HostBinding('class')
   get hostClass(): string {
     return (
-      `${this.isCssMoving ? 'moving ' : ''}` +
+      `${this.isCssMoving && !this.isSizeControlDown ? 'moving ' : ''}` +
+      `${this.isFulling && !this.isSizeControlDown ? 'fulling ' : ''}` +
       `${this.isCollapse ? 'collapse ' : ''}` +
       `${this.windowData.isFocus ? 'focus ' : ''}` +
-      `${this.isFulling ? 'fulling ' : ''}` +
       `${this.windowData.isWidthFull && this.windowData.isHeightFull ? 'full ' : ''}`
     );
   }
@@ -192,7 +194,7 @@ export class WindowComponent implements OnInit, OnChanges {
       `${this.isHeightFull && scale ? 0 : DOMRect.y}px`+
     `) scale(${scale})`;
     this.innerWidth = this.isWidthFull && scale ? '100vw' : `${DOMRect.width}px`;
-    this.innerHeight = this.isHeightFull && scale ? 'calc(100vh - 40px)' : `${DOMRect.height}px`;
+    this.innerHeight = this.isHeightFull && scale ? `calc(100vh - ${DesktopService.TaskBarHeight}px)` : `${DOMRect.height}px`;
   }
 
   private handleMoveChange(event: MouseEvent): void {
@@ -216,8 +218,19 @@ export class WindowComponent implements OnInit, OnChanges {
     if (!this.isSizeControlDown || this.windowData.isDisabledControlSize) {
       return;
     }
-
     let newRect: DOMRect = { ...this.orgOpenRect };
+
+    if (this.isWidthFull && this.isHeightFull) {
+      const desktopRect = this.desktopService.getRect();
+      newRect = {
+        x: 0,
+        y: 0,
+        width: desktopRect.width,
+        height: desktopRect.height - DesktopService.TaskBarHeight
+      }
+    }
+
+
     const xMove = event.x - this.startDownPos.x;
     const yMove = event.y - this.startDownPos.y;
 

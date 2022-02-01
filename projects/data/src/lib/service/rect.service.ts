@@ -10,7 +10,7 @@ export class RectService {
 
   static parentTagName = '';
 
-  static getDomRect(DOM: HTMLElement): DOMRect {
+  static getDOMRect(DOM: HTMLElement): DOMRect {
     let innerDOM: HTMLElement = DOM;
     let x = 0;
     let y = 0;

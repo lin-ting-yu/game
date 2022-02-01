@@ -25,6 +25,7 @@
           class="bar-item"
           [ngClass]="{ focus: barItem.isFocus }"
           (click)="itemClick(barItemDOM, i, barItem.id)"
+          (contextmenu)="rightClick($event, barItemDOM, i, barItem.id)"
         >
           <div class="icon"><img
               [src]="barItem.icon"
@@ -59,6 +60,7 @@
                 class="bar-item"
                 [ngClass]="{ focus: barItem.isFocus }"
                 (click)="itemClick(barItemDOM, i, barItem.id)"
+                (contextmenu)="rightClick($event, barItemDOM, i, barItem.id)"
               >
                 <div class="icon"><img
                     [src]="barItem.icon"

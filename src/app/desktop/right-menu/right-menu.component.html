@@ -1,0 +1,20 @@
+<ng-container *ngFor="let item of rightItemList">
+  <div
+    class="item"
+    [ngClass]="{
+      disabled: item.isDisabled
+    }"
+    (click)="itemClick(item, $event);"
+  >
+    <div
+      *ngIf="item.icon"
+      class="icon"
+    >
+      <img
+        [src]="item.icon"
+        alt=""
+      >
+    </div>
+    <div class="name">{{item.name}}</div>
+  </div>
+</ng-container>

@@ -5,6 +5,10 @@ import { BarItemComponent } from './bar-item/bar-item.component';
 import { DesktopService, RectService } from 'projects/data/src/lib/service';
 import { Subscription } from 'rxjs';
 import { environment } from 'src/environments/environment';
+import { OverlayService } from '../shared/service/overlay.service';
+import { RightMenuComponent } from '../right-menu/right-menu.component';
+import { GreetComponent } from '../shared/component/greet/greet.component';
+import { GreetService } from '../shared/service/greet.service';
 
 @Component({
   selector: 'app-task-bar',
@@ -15,7 +19,9 @@ export class TaskBarComponent implements OnInit, OnDestroy {
 
   constructor(
     private desktopService: DesktopService,
-    private cdRef: ChangeDetectorRef
+    private cdRef: ChangeDetectorRef,
+    private overlayService: OverlayService,
+    private greetService: GreetService
   ) { }
 
   @ContentChildren(BarItemComponent) BarItemComponentList: QueryList<BarItemComponent>;
@@ -30,7 +36,12 @@ export class TaskBarComponent implements OnInit, OnDestroy {
   private updateFocus$: Subscription;
   private barItemChange$: Subscription;
 
-  barItemList: any[] = [];
+  barItemList: {
+    id: string;
+    icon: string;
+    name: string;
+    isFocus: boolean;
+  }[] = [];
 
   hour = '';
   minute = '';
@@ -85,16 +96,62 @@ export class TaskBarComponent implements OnInit, OnDestroy {
   }
 
   itemClick(itemDOM: HTMLElement, index: number, id: string): void {
-    const rect = RectService.getDomRect(itemDOM);
+    const rect = RectService.getDOMRect(itemDOM);
 
     const barItem = this.BarItemComponentList.toArray()[index];
-    barItem.onItemClick.emit({
+    barItem.onClickItem.emit({
       id,
       x: rect.x,
       y: rect.y,
       width: rect.width,
       height: rect.height,
     });
+  }
+
+  rightClick(mouseEvent: MouseEvent, itemDOM: HTMLElement, index: number, id: string): boolean {
+    const barItem = this.BarItemComponentList.toArray()[index];
+    const rect = RectService.getDOMRect(itemDOM);
+    mouseEvent.stopPropagation();
+    const overlay = this.overlayService.openOverlay<RightMenuComponent>(
+      mouseEvent,
+      RightMenuComponent,
+      {
+        rightItemList: [
+          {
+            icon: `${this.assetsPath}/image/icon/right-tool/close.svg`,
+            name: 'Close',
+            onClick: () => {
+              barItem.onClickClose.emit(id);
+            }
+          },
+          {
+            icon: `${this.assetsPath}/image/icon/right-tool/center.svg`,
+            name: 'Center',
+            onClick: () => {
+              barItem.onClickCenter.emit({
+                id,
+                x: rect.x,
+                y: rect.y,
+                width: rect.width,
+                height: rect.height,
+              });
+            }
+          },
+          {
+            icon: `${this.assetsPath}/image/icon/right-tool/heart.svg`,
+            name: 'Say Hi',
+            onClick: () => {
+              this.greetService.greet(rect.x, rect.y);
+            }
+          },
+        ],
+      }
+    );
+
+    overlay.componentRef.instance.putClose.subscribe(() => {
+      overlay.destroy();
+    });
+    return false;
   }
 
   private setBarItemList(): void {
@@ -112,7 +169,7 @@ export class TaskBarComponent implements OnInit, OnDestroy {
             return { x: 0, y: 0, width: 0, height: 0 };
           }
 
-          const rect = RectService.getDomRect(this.more.nativeElement);
+          const rect = RectService.getDOMRect(this.more.nativeElement);
           return {
             x: rect.x,
             y: rect.y,
@@ -126,7 +183,7 @@ export class TaskBarComponent implements OnInit, OnDestroy {
             return { x: 0, y: 0, width: 0, height: 0 };
           }
           const barItem = this.barItemDOMList.toArray()[i].nativeElement as HTMLElement;
-          const rect = RectService.getDomRect(barItem);
+          const rect = RectService.getDOMRect(barItem);
           return {
             x: rect.x,
             y: rect.y,
@@ -174,3 +231,4 @@ export class TaskBarComponent implements OnInit, OnDestroy {
 
 
 }
+

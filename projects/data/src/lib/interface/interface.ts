@@ -17,6 +17,7 @@ export interface ContentData {
 export enum WindowType {
   Minesweeper = 'minesweeper',
   Div100 = 'div100',
+  GitHub = 'gitHub'
 }
 
 export interface ToolBaseInfo {
@@ -93,4 +94,16 @@ export interface UpdateOpenRect {
 
 export interface ToolData extends ToolBaseInfo {
   onClick: (rect: DOMRect) => void;
+}
+
+export interface RightManuItem {
+  icon?: string;
+  name: string;
+  isDisabled?: boolean;
+  onClick:(mouseEvent: MouseEvent) => void;
+}
+
+export interface DesktopItemContextmenu {
+  mouseEvent: MouseEvent;
+  rect: DOMRect;
 }

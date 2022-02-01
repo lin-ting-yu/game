@@ -22,9 +22,8 @@ export class IframeContentComponent implements OnInit, WindowInnerComponent {
   ngOnInit(): void {
   }
   ngOnChanges(changes: SimpleChanges): void {
-    console.log(changes);
-
   }
+
   windowUpdateInput(): void {
 
     if (this.isFocus && !this.isCollapse && !this.isMoving && !this.isResizing) {
