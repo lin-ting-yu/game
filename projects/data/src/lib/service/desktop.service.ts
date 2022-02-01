@@ -172,7 +172,7 @@ export class DesktopService {
       content: {
         component: IframeContentComponent,
         inputs: {
-          src: 'http://localhost:8848/index.html'
+          src: environment.iframeUrl.div100
         }
       }
     };

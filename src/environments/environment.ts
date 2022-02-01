@@ -4,7 +4,10 @@
 
 export const environment = {
   production: false,
-  assetsPath: '/assets'
+  assetsPath: '/assets',
+  iframeUrl: {
+    div100: 'http://localhost:8848/index.html'
+  }
 };
 
 /*

@@ -1,4 +1,7 @@
 export const environment = {
   production: true,
-  assetsPath: '/game/assets'
+  assetsPath: '/game/assets',
+  iframeUrl: {
+    div100: 'https://lin-ting-yu.github.io/100div'
+  }
 };
