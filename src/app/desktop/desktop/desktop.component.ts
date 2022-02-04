@@ -42,9 +42,6 @@ export class DesktopComponent implements OnInit {
       this.desktopService.putDesktopResize(rect.width, rect.height);
     }
   }
-  @HostListener('document:contextmenu') contextmenu(): boolean {
-    return !this.production;
-  }
 
   private oldWidth: number;
   private oldHeight: number;
@@ -62,6 +59,10 @@ export class DesktopComponent implements OnInit {
     {
       ...DesktopService.ToolBaseInfoData[WindowType.Div100],
       onClick: (rect: DOMRect) => { this.create100Div(rect); }
+    },
+    {
+      ...DesktopService.ToolBaseInfoData[WindowType.Bug],
+      onClick: (rect: DOMRect) => { this.createBug(rect); }
     },
     {
       ...DesktopService.ToolBaseInfoData[WindowType.GitHub],
@@ -91,7 +92,13 @@ export class DesktopComponent implements OnInit {
       onDblclick: (rect: DOMRect) => this.create100Div(rect),
       rightClick: (rect: DesktopItemContextmenu) =>
         this.rightClick(rect, 'https://github.com/lin-ting-yu/100div', (rect) => this.create100Div(rect))
-    }
+    },
+    {
+      toolBaseInfo: this.ToolBaseInfoData[WindowType.Bug],
+      onDblclick: (rect: DOMRect) => this.createBug(rect),
+      rightClick: (rect: DesktopItemContextmenu) =>
+        this.rightClick(rect, 'https://github.com/lin-ting-yu/Adventurer-BUG', (rect) => this.createBug(rect))
+    },
   ];
 
   windowList: WindowData[] = [];
@@ -113,6 +120,7 @@ export class DesktopComponent implements OnInit {
       });
     });
   }
+
   ngAfterViewInit(): void {
     this.setDOM();
     const rect = this.desktopService.getRect();
@@ -339,6 +347,7 @@ export class DesktopComponent implements OnInit {
       this.cdRef.markForCheck();
     }, 0);
   }
+
   private createMinesweeper(rect: DOMRect): void {
     this.createWindowConponent(
       rect,
@@ -350,6 +359,12 @@ export class DesktopComponent implements OnInit {
     this.createWindowConponent(
       rect,
       this.desktopService.create100Div()
+    );
+  }
+  private createBug(rect: DOMRect): void {
+    this.createWindowConponent(
+      rect,
+      this.desktopService.createBug()
     );
   }
 

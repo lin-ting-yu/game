@@ -6,7 +6,8 @@ export const environment = {
   production: false,
   assetsPath: '/assets',
   iframeUrl: {
-    div100: 'http://localhost:8848/index.html'
+    div100: 'http://localhost:8848/index.html',
+    bug: 'http://localhost:3002/'
   }
 };
 

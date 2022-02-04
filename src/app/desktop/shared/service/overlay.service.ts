@@ -31,7 +31,7 @@ export class OverlayService {
           top: 0;
           left: 0;
           pointer-events: none;
-          z-index: 999;
+          z-index: 999999;
         }
 
         .game-overlay-background {
@@ -102,6 +102,9 @@ export class OverlayService {
     bg.addEventListener('click', () => {
       destroy();
     });
+    bg.addEventListener('contextmenu', () => {
+      destroy();
+    });
     this.getOverlayContainer().appendChild(bg);
 
     const conponentContainer = this.createComponentContainer();
@@ -113,7 +116,7 @@ export class OverlayService {
 
     const checkPos = () => {
       const desktoRect = this.desktopService.getRect();
-      const cptRect = RectService.getDOMRect(safeNativeElement);
+      const cptRect = RectService.getOrgDOMRect(safeNativeElement);
       let translateX: string = '';
       let translateY: string = '';
       conponentContainer.classList.remove('loading');

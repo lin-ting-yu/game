@@ -17,7 +17,8 @@ export interface ContentData {
 export enum WindowType {
   Minesweeper = 'minesweeper',
   Div100 = 'div100',
-  GitHub = 'gitHub'
+  GitHub = 'gitHub',
+  Bug = 'bug',
 }
 
 export interface ToolBaseInfo {

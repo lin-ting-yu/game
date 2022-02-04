@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { NgModule } from '@angular/core';
-import { PipeModule } from 'projects/pipe/src/public-api';
+import { PipeModule } from 'projects/data/src/lib/pipe';
 import { IframeContentComponent } from './iframe-content.component';
 import { CachedSrcDirective } from './directive/cached-src.directive';
 

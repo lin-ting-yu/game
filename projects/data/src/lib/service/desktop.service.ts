@@ -16,7 +16,7 @@ export class DesktopService {
 
   constructor() { }
 
-  static readonly TaskBarHeight = 40 - 1 ;
+  static readonly TaskBarHeight = 40;
   static readonly WindowHeaderHeight = 24;
   static readonly ToolBaseInfoData: { [WindowType: string]: ToolBaseInfo; } = {
     [WindowType.Minesweeper]: {
@@ -41,6 +41,14 @@ export class DesktopService {
       icon: {
         default: `${environment.assetsPath}/image/icon/desktop/github.svg`,
         min: `${environment.assetsPath}/image/icon/desktop/github.svg`
+      }
+    },
+    [WindowType.Bug]: {
+      type: WindowType.Bug,
+      name: 'Adventurer BUG',
+      icon: {
+        default: `${environment.assetsPath}/image/icon/desktop/bug.svg`,
+        min: `${environment.assetsPath}/image/icon/desktop/bug-min.svg`
       }
     }
   };
@@ -71,7 +79,7 @@ export class DesktopService {
   }
 
   getRect(): DOMRect {
-    return RectService.getDOMRect(this.DOM);
+    return RectService.getOrgDOMRect(this.DOM);
   }
 
   putUpdateFoucs(id: string): void {
@@ -173,6 +181,43 @@ export class DesktopService {
         component: IframeContentComponent,
         inputs: {
           src: environment.iframeUrl.div100
+        }
+      }
+    };
+  }
+
+  createBug(): WindowData {
+    return {
+      id: this.createId(),
+      ...DesktopService.ToolBaseInfoData[WindowType.Bug],
+      openRect: {
+        width: 600,
+        height: 400,
+        x: 100,
+        y: 100,
+      },
+      closeRect: {
+        width: 0,
+        height: 0,
+        x: 0,
+        y: 0,
+      },
+      minWidth: 600,
+      minHeight: 400,
+      isWidthFull: false,
+      isHeightFull: false,
+      isCollapse: false,
+      isFocus: true,
+      isDisabledSelect: true,
+      isDisabledCollapse: false,
+      isDisabledZoom: false,
+      isDisabledClose: false,
+      isDisabledControlSize: false,
+      content: {
+        component: IframeContentComponent,
+        inputs: {
+          src: environment.iframeUrl.bug,
+          scale: 1
         }
       }
     };

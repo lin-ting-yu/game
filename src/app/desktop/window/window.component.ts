@@ -99,9 +99,9 @@ export class WindowComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     if (this.isCollapse) {
-      this.innerStyle(this.calcCloseRect(this.windowData.closeRect), 0);
+      this.setInnerStyle(this.calcCloseRect(this.windowData.closeRect), 0);
     } else {
-      this.innerStyle(this.windowData.openRect);
+      this.setInnerStyle(this.windowData.openRect);
     }
     this.setSelectText();
   }
@@ -116,13 +116,14 @@ export class WindowComponent implements OnInit, OnChanges {
   }): void {
     if (changes.openRect && this.openRect) {
       if (!this.isCollapse) {
-        this.innerStyle(this.windowData.openRect);
+        this.setInnerStyle(this.windowData.openRect);
       }
     }
     if (
       changes.isWidthFull && !changes.isWidthFull.firstChange ||
       changes.isHeightFull && !changes.isHeightFull.firstChange
     ) {
+      // 從全螢幕縮小需要重設 orgOpenRect
       if (!this.isHeightFull && !this.isWidthFull) {
         this.orgOpenRect = { ...this.windowData.openRect };
       }
@@ -144,13 +145,14 @@ export class WindowComponent implements OnInit, OnChanges {
     }
   }
 
+  ngAfterViewInit(): void {
+    this.createContent();
+  }
+
   ngOnDestroy(): void {
     if (this.contentComponent) {
       this.contentComponent.destroy();
     }
-  }
-  ngAfterViewInit(): void {
-    this.createContent();
   }
 
   headerDown(event: MouseEvent): void {
@@ -188,7 +190,7 @@ export class WindowComponent implements OnInit, OnChanges {
     this.startDownPos.y = event.y;
   }
 
-  private innerStyle(DOMRect: DOMRect, scale: 1 | 0 = 1): void {
+  private setInnerStyle(DOMRect: DOMRect, scale: 1 | 0 = 1): void {
     this.innerTranslate = `translate(` +
       `${this.isWidthFull && scale ? 0 : DOMRect.x}px, `+
       `${this.isHeightFull && scale ? 0 : DOMRect.y}px`+
@@ -229,7 +231,6 @@ export class WindowComponent implements OnInit, OnChanges {
         height: desktopRect.height - DesktopService.TaskBarHeight
       }
     }
-
 
     const xMove = event.x - this.startDownPos.x;
     const yMove = event.y - this.startDownPos.y;
@@ -283,21 +284,23 @@ export class WindowComponent implements OnInit, OnChanges {
       height: this.windowData.openRect.height,
     };
   }
+
   private closeWindow(): void {
     this.isCssMoving = true;
 
     setTimeout(() => {
-      this.innerStyle(this.calcCloseRect(this.windowData.closeRect), 0);
+      this.setInnerStyle(this.calcCloseRect(this.windowData.closeRect), 0);
       this.cdRef.markForCheck();
     }, 0);
   }
+
   private openWindow(): void {
-    this.innerStyle(this.calcCloseRect(this.windowData.closeRect), 0);
+    this.setInnerStyle(this.calcCloseRect(this.windowData.closeRect), 0);
     setTimeout(() => {
       this.isCssMoving = true;
       this.cdRef.markForCheck();
       setTimeout(() => {
-        this.innerStyle(this.openRect);
+        this.setInnerStyle(this.openRect);
         this.cdRef.markForCheck();
       }, 0);
     }, 0);
@@ -307,7 +310,7 @@ export class WindowComponent implements OnInit, OnChanges {
     this.isCssMoving = true;
     this.isFulling = true;
     setTimeout(() => {
-      this.innerStyle(this.openRect);
+      this.setInnerStyle(this.openRect);
       this.cdRef.markForCheck();
     }, 0);
   }

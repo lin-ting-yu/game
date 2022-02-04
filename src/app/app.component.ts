@@ -1,3 +1,4 @@
+import { environment } from 'src/environments/environment';
 import { Component, HostListener } from '@angular/core';
 import { DeviceDetectorService } from 'ngx-device-detector';
 import * as createjs from 'createjs-module';
@@ -14,6 +15,9 @@ export class AppComponent {
     private deviceService: DeviceDetectorService
   ) {
     createjs.Ticker.timingMode = createjs.Ticker.RAF;
+  }
+  @HostListener('document:contextmenu') contextmenu(): boolean {
+    return !environment.production;
   }
   @HostListener('window:resize', ['$event.target']) hostResise(event: any) {
     this.checkSize()

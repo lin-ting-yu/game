@@ -40,6 +40,7 @@ export class ToolListComponent implements OnInit {
     event.stopPropagation();
   }
 
+  private isScrollToing = false;
   isShown = false;
   innerToolList: ToolData[];
   toolGroupList: { [key: string]: ToolData[]; } = {};
@@ -61,15 +62,18 @@ export class ToolListComponent implements OnInit {
   }
 
   ngAfterViewInit(): void {
-    this.updateFocus();
+    this.groupHover(0);
   }
   updateFocus(): void {
+    if (!this.isScrollToing) {
+      return;
+    }
     const groupEleList = this.toolGroupEleList.toArray();
     const toolScrollDOM = this.toolScrollContainer.directiveRef?.elementRef.nativeElement as HTMLElement;
     const scrollTop = toolScrollDOM.scrollTop;
     const index = groupEleList.findIndex((ele: ElementRef) => {
       const DOM = ele.nativeElement as HTMLElement;
-      const rect = RectService.getDOMRect(DOM);
+      const rect = RectService.getOrgDOMRect(DOM);
       return DOM.offsetTop + rect.height / 3 > scrollTop;
     });
     this.setFocus(index);
@@ -81,9 +85,14 @@ export class ToolListComponent implements OnInit {
     if (!this.toolGroupEleList) {
       return;
     }
+    this.isScrollToing = true;
     const eleList = this.toolGroupEleList.toArray();
     const groupDOM = eleList[index].nativeElement as HTMLElement;
     this.toolScrollContainer.directiveRef?.scrollToY(groupDOM.offsetTop, 500);
+    setTimeout(() => {
+      this.isScrollToing = false;
+      this.cdRef.markForCheck();
+    }, 500);
   }
 
   setSubHoverIndexList(index: number): void {
@@ -92,7 +101,7 @@ export class ToolListComponent implements OnInit {
   }
 
   itemClick(itemDOM: HTMLElement, toolData: ToolData): void {
-    const rect = RectService.getDOMRect(itemDOM)
+    const rect = RectService.getOrgDOMRect(itemDOM)
     toolData.onClick({
       x: rect.x,
       y: rect.y,
@@ -102,17 +111,23 @@ export class ToolListComponent implements OnInit {
     this.putClose.emit();
   }
 
+  groupHover(index: number): void {
+    this.setFocus(index);
+    this.setSubFocus(index);
+    this.cdRef.detectChanges();
+  }
+
   private setFocus(focusIndex: number): void {
     this.focusIndexList = [];
-    const toolScrollDOM = this.toolScrollContainer.directiveRef?.elementRef.nativeElement as HTMLElement;
-    const toolScrollTop = toolScrollDOM.scrollTop;
-    const toolScrollHeight = toolScrollDOM.scrollHeight;
+    // const toolScrollDOM = this.toolScrollContainer.directiveRef?.elementRef.nativeElement as HTMLElement;
+    // const toolScrollTop = toolScrollDOM.scrollTop;
+    // const toolScrollHeight = toolScrollDOM.scrollHeight;
 
-    if (toolScrollHeight - (toolScrollDOM.offsetHeight + toolScrollTop) < 60) {
-      for (let i = focusIndex + 1, max = this.toolGroupKeyList.length; i < max; i++) {
-        this.focusIndexList[i] = true;
-      }
-    }
+    // if (toolScrollHeight - (toolScrollDOM.offsetHeight + toolScrollTop) < 60) {
+    //   for (let i = focusIndex + 1, max = this.toolGroupKeyList.length; i < max; i++) {
+    //     this.focusIndexList[i] = true;
+    //   }
+    // }
     this.focusIndexList[focusIndex] = true;
     this.scrollToShowDot(focusIndex);
   }
@@ -134,7 +149,7 @@ export class ToolListComponent implements OnInit {
       dotDOM.offsetTop < dotScrollTop ||
       (dotScrollTop + dotScrollDOM.offsetHeight) - (dotDOM.offsetHeight + dotDOM.offsetTop) < 0
     ) {
-      this.dotScrollContainer.directiveRef?.scrollToY(dotDOM.offsetTop, 500);
+      this.dotScrollContainer.directiveRef?.scrollToY(dotDOM.offsetTop, 100);
     }
   }
 

@@ -93,8 +93,14 @@
     overflow: hidden;
   }
   .tool-group {
-    margin-bottom: grid(7);
+
     border-bottom: solid 2px $color-0;
+    & + .tool-group {
+      padding-top: grid(7);
+    }
+    &:last-child {
+      margin-bottom: grid(7);
+    }
     .group-title {
       padding-left: grid(4);
       margin-bottom: grid(4);

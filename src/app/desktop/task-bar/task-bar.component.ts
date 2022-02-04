@@ -110,6 +110,7 @@ export class TaskBarComponent implements OnInit, OnDestroy {
 
   rightClick(mouseEvent: MouseEvent, itemDOM: HTMLElement, index: number, id: string): boolean {
     const barItem = this.BarItemComponentList.toArray()[index];
+    const orgRect = RectService.getOrgDOMRect(itemDOM);
     const rect = RectService.getDOMRect(itemDOM);
     mouseEvent.stopPropagation();
     const overlay = this.overlayService.openOverlay<RightMenuComponent>(
@@ -130,10 +131,10 @@ export class TaskBarComponent implements OnInit, OnDestroy {
             onClick: () => {
               barItem.onClickCenter.emit({
                 id,
-                x: rect.x,
-                y: rect.y,
-                width: rect.width,
-                height: rect.height,
+                x: orgRect.x,
+                y: orgRect.y,
+                width: orgRect.width,
+                height: orgRect.height,
               });
             }
           },
@@ -169,7 +170,7 @@ export class TaskBarComponent implements OnInit, OnDestroy {
             return { x: 0, y: 0, width: 0, height: 0 };
           }
 
-          const rect = RectService.getDOMRect(this.more.nativeElement);
+          const rect = RectService.getOrgDOMRect(this.more.nativeElement);
           return {
             x: rect.x,
             y: rect.y,
@@ -183,7 +184,7 @@ export class TaskBarComponent implements OnInit, OnDestroy {
             return { x: 0, y: 0, width: 0, height: 0 };
           }
           const barItem = this.barItemDOMList.toArray()[i].nativeElement as HTMLElement;
-          const rect = RectService.getDOMRect(barItem);
+          const rect = RectService.getOrgDOMRect(barItem);
           return {
             x: rect.x,
             y: rect.y,

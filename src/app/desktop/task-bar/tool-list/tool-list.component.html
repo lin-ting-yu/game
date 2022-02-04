@@ -26,10 +26,11 @@
       (psScrollY)="updateFocus()"
     >
       <div class="scroll-container">
-        <ng-container *ngFor="let key of toolGroupKeyList">
+        <ng-container *ngFor="let key of toolGroupKeyList; let i = index">
           <div
             #toolGroup
             class="tool-group"
+            (mouseenter)="groupHover(i)"
           >
             <div class="group-title">{{key}}</div>
             <ng-container *ngFor="let toolData of toolGroupList[key]">

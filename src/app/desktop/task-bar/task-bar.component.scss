@@ -15,7 +15,7 @@
   padding: 0 grid(4) 0 0;
   position: absolute;
   bottom: 0;
-  z-index: 100;
+  z-index: 900;
 }
 .logo,
 .item-container,
@@ -149,6 +149,7 @@
       overflow: hidden;
       opacity: 1;
       transition: 0.3s;
+      z-index: 999;
       .bar-item {
         height: grid(10);
         width: 100%;

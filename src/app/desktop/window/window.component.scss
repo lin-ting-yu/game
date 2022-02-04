@@ -15,6 +15,7 @@ $border-size: 1px;
     transition: 0.5s;
     transition-property: width, height, transform;
     transition-timing-function: $size-fn, $size-fn, $transform-fn;
+    z-index: 1000 !important;
   }
   &.collapse {
     pointer-events: none;

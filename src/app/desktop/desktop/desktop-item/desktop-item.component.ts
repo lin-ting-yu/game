@@ -21,14 +21,14 @@ export class DesktopItemComponent implements OnInit {
 
   @HostListener('dblclick') dblclick(): void {
     this.onDblclick.emit(
-      RectService.getDOMRect(this.iconDOM.nativeElement)
+      RectService.getOrgDOMRect(this.iconDOM.nativeElement)
     );
   }
   @HostListener('contextmenu', ['$event']) contextmenu(event: MouseEvent): boolean {
     this.onContextmenu.emit(
       {
         mouseEvent: event,
-        rect: RectService.getDOMRect(this.elementRef.nativeElement)
+        rect: RectService.getOrgDOMRect(this.elementRef.nativeElement)
       }
     )
     return false;

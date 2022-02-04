@@ -10,7 +10,7 @@ export class RectService {
 
   static parentTagName = '';
 
-  static getDOMRect(DOM: HTMLElement): DOMRect {
+  static getOrgDOMRect(DOM: HTMLElement): DOMRect {
     let innerDOM: HTMLElement = DOM;
     let x = 0;
     let y = 0;
@@ -39,5 +39,15 @@ export class RectService {
       width: DOM.offsetWidth,
       height: DOM.offsetHeight,
     };
+  }
+
+  static getDOMRect(DOM: HTMLElement): DOMRect {
+    const rect = DOM.getBoundingClientRect();
+    return {
+      x: rect.x,
+      y: rect.y,
+      width: rect.width,
+      height: rect.height
+    }
   }
 }

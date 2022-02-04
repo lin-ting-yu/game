@@ -1,2 +1,14 @@
-<iframe #iframe [src]="src | safeUrl" frameborder="0"></iframe>
-<div *ngIf="!isFocus || isMoving || isResizing" class="mask"></div>
+<iframe
+  #iframe
+  frameborder="0"
+  [src]="src | safeUrl"
+  [ngStyle]="{
+    width: size,
+    height: size,
+    transform: transform
+  }"
+></iframe>
+<div
+  *ngIf="!isFocus || isMoving || isResizing"
+  class="mask"
+></div>
